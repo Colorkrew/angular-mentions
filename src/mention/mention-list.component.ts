@@ -1,11 +1,40 @@
 import {
-  Component, ElementRef, Output, EventEmitter, ViewChild, ContentChild, Input,
+  Component, ElementRef, Output, EventEmitter, ViewChild, Input,
   TemplateRef, OnInit
 } from '@angular/core';
 
 import { isInputOrTextAreaElement, getContentEditableCaretCoords } from './mention-utils';
 import { getCaretCoordinates } from './caret-coords';
 
+const styles = [`
+.mentionItemList {
+  list-style: none;
+  border-collapse: collapse;
+  padding: 0;
+  margin: 2px 0 0;
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);
+  overflow: auto;
+  max-height: 300px;
+  height: auto;
+  background-color: white;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  min-width: 160px;
+  font-size: 14px;
+  text-align: left;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+.mentionItem:hover, .mentionItem.active {
+  background-color: #ccc;
+}
+[hidden] {
+  display: none;
+}
+`
+];
 /**
  * Angular 2 Mentions.
  * https://github.com/dmacfarlane/angular-mentions
@@ -14,8 +43,19 @@ import { getCaretCoordinates } from './caret-coords';
  */
 @Component({
   selector: 'mention-list',
-  styleUrls: ['./mention-list.component.scss'],
-  templateUrl: './mention-list.component.html'
+  styles: styles,
+  template: `
+    <ng-template #defaultItemTemplate let-item="item">
+      {{item[labelKey]}}
+    </ng-template>
+    <ul #list [hidden]="hidden" class="mentionItemList">
+      <li *ngFor="let item of items; let i = index" [ngClass]="{mentionItem: true, active: activeIndex==i}">
+        <a class="dropdown-item" (mousedown)="activeIndex=i;itemClick.emit();$event.preventDefault()">
+          <ng-template [ngTemplateOutlet]="itemTemplate" [ngTemplateOutletContext]="{'item':item}"></ng-template>
+        </a>
+      </li>
+    </ul>
+  `
 })
 export class MentionListComponent implements OnInit {
   @Input() labelKey: string = 'label';

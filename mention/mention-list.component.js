@@ -2,6 +2,8 @@
 var core_1 = require("@angular/core");
 var mention_utils_1 = require("./mention-utils");
 var caret_coords_1 = require("./caret-coords");
+var styles = ["\n.mentionItemList {\n  list-style: none;\n  border-collapse: collapse;\n  padding: 0;\n  margin: 2px 0 0;\n  box-shadow: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);\n  overflow: auto;\n  max-height: 300px;\n  height: auto;\n  background-color: white;\n  position: absolute;\n  top: 100%;\n  left: 0;\n  z-index: 1000;\n  min-width: 160px;\n  font-size: 14px;\n  text-align: left;\n  border: 1px solid #ccc;\n  border-radius: 2px;\n}\n.mentionItem:hover, .mentionItem.active {\n  background-color: #ccc;\n}\n[hidden] {\n  display: none;\n}\n"
+];
 /**
  * Angular 2 Mentions.
  * https://github.com/dmacfarlane/angular-mentions
@@ -100,8 +102,8 @@ var MentionListComponent = (function () {
 MentionListComponent.decorators = [
     { type: core_1.Component, args: [{
                 selector: 'mention-list',
-                styleUrls: ['./mention-list.component.scss'],
-                templateUrl: './mention-list.component.html'
+                styles: styles,
+                template: "\n    <ng-template #defaultItemTemplate let-item=\"item\">\n      {{item[labelKey]}}\n    </ng-template>\n    <ul #list [hidden]=\"hidden\" class=\"mentionItemList\">\n      <li *ngFor=\"let item of items; let i = index\" [ngClass]=\"{mentionItem: true, active: activeIndex==i}\">\n        <a class=\"dropdown-item\" (mousedown)=\"activeIndex=i;itemClick.emit();$event.preventDefault()\">\n          <ng-template [ngTemplateOutlet]=\"itemTemplate\" [ngTemplateOutletContext]=\"{'item':item}\"></ng-template>\n        </a>\n      </li>\n    </ul>\n  "
             },] },
 ];
 /** @nocollapse */
