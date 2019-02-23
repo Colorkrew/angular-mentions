@@ -1,13 +1,14 @@
+
+import {switchMap, distinctUntilChanged, debounceTime} from 'rxjs/operators';
 import { Component, OnInit } from '@angular/core';
 import { Http } from '@angular/http';
 
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import { Observable ,  Subject } from 'rxjs';
 
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/toPromise';
+
+
+
+
 
 @Component({
   selector: 'app-demo-async',
@@ -17,10 +18,10 @@ export class DemoAsyncComponent implements OnInit {
   httpItems: Observable<any[]>;
   private searchTermStream = new Subject();
   ngOnInit() {
-    this.httpItems = this.searchTermStream
-      .debounceTime(300)
-      .distinctUntilChanged()
-      .switchMap((term: string) => this.getItems(term));
+    this.httpItems = this.searchTermStream.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((term: string) => this.getItems(term)),);
   }
   search(term: string) {
     this.searchTermStream.next(term);

@@ -1,7 +1,7 @@
-import { Directive, ElementRef, ComponentFactoryResolver, ViewContainerRef, TemplateRef } from "@angular/core";
-import { Input, EventEmitter, Output, OnChanges, SimpleChanges } from "@angular/core";
+import { Directive, ElementRef, ComponentFactoryResolver, ViewContainerRef, TemplateRef } from '@angular/core';
+import { Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/core';
 
-import { MentionConfig } from "./mention-config";
+import { MentionConfig } from './mention-config';
 import { MentionListComponent } from './mention-list.component';
 import { getValue, insertValue, getCaretPosition, setCaretPosition } from './mention-utils';
 
@@ -32,17 +32,17 @@ const KEY_2 = 50;
 })
 export class MentionDirective implements OnChanges {
 
-  // stores the items passed to the mentions directive and used to populate the root items in mentionConfig 
-  private mentionItems:any[];
+  // stores the items passed to the mentions directive and used to populate the root items in mentionConfig
+  private mentionItems: any[];
 
-  @Input('mention') set mention(items:any[]) {
+  @Input('mention') set mention(items: any[]) {
     this.mentionItems = items;
   }
 
   // the provided configuration object
-  @Input() mentionConfig: MentionConfig = {items:[]};
+  @Input() mentionConfig: MentionConfig = {items: []};
 
-  private activeConfig: MentionConfig;// = this.DEFAULT_CONFIG;
+  private activeConfig: MentionConfig; // = this.DEFAULT_CONFIG;
 
   private DEFAULT_CONFIG: MentionConfig = {
     items: [],
@@ -279,7 +279,7 @@ export class MentionDirective implements OnChanges {
     if (this.searchList) {
       this.searchList.labelKey = this.activeConfig.labelKey;
       this.searchList.items = matches;
-      this.searchList.hidden = matches.length == 0;
+      this.searchList.hidden = matches.length === 0;
     }
   }
 
