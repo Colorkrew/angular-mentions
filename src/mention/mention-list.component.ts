@@ -14,34 +14,8 @@ import { getCaretCoordinates } from './caret-coords';
  */
 @Component({
   selector: 'mention-list',
-  styles: [`
-      .scrollable-menu {
-        display: block;
-        height: auto;
-        max-height: 300px;
-        overflow: auto;
-      }
-    `,`
-      [hidden] {
-        display: none;
-      }
-    `,`
-      li.active {
-        background-color: #f7f7f9;
-      }
-    `],
-  template: `
-    <ng-template #defaultItemTemplate let-item="item">
-      {{item[labelKey]}}
-    </ng-template>
-    <ul #list [hidden]="hidden" class="dropdown-menu scrollable-menu">
-        <li *ngFor="let item of items; let i = index" [class.active]="activeIndex==i">
-            <a class="dropdown-item" (mousedown)="activeIndex=i;itemClick.emit();$event.preventDefault()">
-              <ng-template [ngTemplateOutlet]="itemTemplate" [ngTemplateOutletContext]="{'item':item}"></ng-template>
-            </a>
-        </li>
-    </ul>
-    `
+  styleUrls: ['./mention-list.component.scss'],
+  templateUrl: './mention-list.component.html'
 })
 export class MentionListComponent implements OnInit {
   @Input() labelKey: string = 'label';
