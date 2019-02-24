@@ -13,6 +13,14 @@ export class DemoTemplateComponent {
     return `@${item.username}`;
   }
 
+  onNext(searchKeyword: string) {
+    let objects = COMMON_NAMES.map(name => {
+      return {label: name, username: name.toLowerCase(), src: `https://dummyimage.com/20x20/249e24/fff&text=Taro+Tokyo${name}`};
+    });
+    objects = objects.filter(e => e['label'].toLowerCase().startsWith(searchKeyword));
+    return objects;
+  }
+
   complexItems: any[] = COMMON_NAMES.map(name => {
     return {label: name, username: name.toLowerCase(), src: `https://dummyimage.com/20x20/249e24/fff&text=Taro+Tokyo${name}`};
   });

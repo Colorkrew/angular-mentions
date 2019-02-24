@@ -32,11 +32,16 @@ const KEY_2 = 50;
 })
 export class MentionDirective implements OnChanges {
 
+  // @Input()
+  // onNext: (searchKeyword: string) => any;
+
   // stores the items passed to the mentions directive and used to populate the root items in mentionConfig
   private mentionItems: any[];
 
   @Input('mention') set mention(items: any[]) {
+    console.log({items});
     this.mentionItems = items;
+
   }
 
   // the provided configuration object
@@ -64,7 +69,7 @@ export class MentionDirective implements OnChanges {
 
   private triggerChars: {[key: string]: MentionConfig} = {};
 
-  searchString: string;
+  searchString = '';
   startPos: number;
   startNode;
   searchList: MentionListComponent;
@@ -107,7 +112,7 @@ export class MentionDirective implements OnChanges {
     let items = config.items;
     if (items && items.length > 0) {
       // convert strings to objects
-      if (typeof items[0] == 'string') {
+      if (typeof items[0] === 'string') {
         items = items.map((label) => {
           const object = {};
           object[config.labelKey] = label;
@@ -128,7 +133,8 @@ export class MentionDirective implements OnChanges {
     // for async update while menu/search is active
     if (this.activeConfig && this.activeConfig.triggerChar === config.triggerChar) {
       this.activeConfig = config;
-      this.updateSearchList(false);
+      // this.updateSearchList(false);
+      this.updateSearchList();
     }
   }
 
@@ -184,9 +190,11 @@ export class MentionDirective implements OnChanges {
       this.startPos = pos;
       this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
       this.stopSearch = false;
-      this.searchString = null;
+      this.searchString = '';
       this.showSearchList(nativeElement);
-      this.updateSearchList();
+      // Comment outt prevent to show search list when just input triggerChara
+      // this.updateSearchList();
+      // this.activeConfig.items = [];
     }
     else if (this.startPos >= 0 && !this.stopSearch) {
       if (pos <= this.startPos) {
@@ -263,13 +271,17 @@ export class MentionDirective implements OnChanges {
 
   updateSearchList(changeSearchListHidden = true) {
     let matches: any[] = [];
+    console.log('updateSearchList');
     if (this.activeConfig && this.activeConfig.items) {
+    console.log(this.activeConfig.items);
       let objects = this.activeConfig.items;
       // disabling the search relies on the async operation to do the filtering
-      if (!this.disableSearch && this.searchString) {
-        const searchStringLowerCase = this.searchString.toLowerCase();
-        objects = objects.filter(e => e[this.activeConfig.labelKey].toLowerCase().startsWith(searchStringLowerCase));
-      }
+      // if (!this.disableSearch && this.searchString) {
+      //   const searchStringLowerCase = this.searchString.toLowerCase();
+      //   objects = objects.filter(e => e[this.activeConfig.labelKey].toLowerCase().startsWith(searchStringLowerCase));
+      // }
+      console.log("labelKey:" + this.activeConfig.labelKey);
+      console.log({objects});
       matches = objects;
       if (this.activeConfig.maxItems > 0) {
         matches = matches.slice(0, this.activeConfig.maxItems);

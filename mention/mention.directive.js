@@ -51,9 +51,11 @@ var MentionDirective = /** @class */ (function () {
         // from an async operation (or allows a custom filter function to be used - in future)
         this.disableSearch = false;
         this.triggerChars = {};
+        this.searchString = '';
     }
     Object.defineProperty(MentionDirective.prototype, "mention", {
         set: function (items) {
+            console.log({ items: items });
             this.mentionItems = items;
         },
         enumerable: true,
@@ -88,7 +90,7 @@ var MentionDirective = /** @class */ (function () {
         var items = config.items;
         if (items && items.length > 0) {
             // convert strings to objects
-            if (typeof items[0] == 'string') {
+            if (typeof items[0] === 'string') {
                 items = items.map(function (label) {
                     var object = {};
                     object[config.labelKey] = label;
@@ -107,7 +109,8 @@ var MentionDirective = /** @class */ (function () {
         // for async update while menu/search is active
         if (this.activeConfig && this.activeConfig.triggerChar === config.triggerChar) {
             this.activeConfig = config;
-            this.updateSearchList(false);
+            // this.updateSearchList(false);
+            this.updateSearchList();
         }
     };
     MentionDirective.prototype.setIframe = function (iframe) {
@@ -159,9 +162,11 @@ var MentionDirective = /** @class */ (function () {
             this.startPos = pos;
             this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
             this.stopSearch = false;
-            this.searchString = null;
+            this.searchString = '';
             this.showSearchList(nativeElement);
-            this.updateSearchList();
+            // Comment outt prevent to show search list when just input triggerChara
+            // this.updateSearchList();
+            // this.activeConfig.items = [];
         }
         else if (this.startPos >= 0 && !this.stopSearch) {
             if (pos <= this.startPos) {
@@ -233,16 +238,19 @@ var MentionDirective = /** @class */ (function () {
         }
     };
     MentionDirective.prototype.updateSearchList = function (changeSearchListHidden) {
-        var _this = this;
         if (changeSearchListHidden === void 0) { changeSearchListHidden = true; }
         var matches = [];
+        console.log('updateSearchList');
         if (this.activeConfig && this.activeConfig.items) {
+            console.log(this.activeConfig.items);
             var objects = this.activeConfig.items;
             // disabling the search relies on the async operation to do the filtering
-            if (!this.disableSearch && this.searchString) {
-                var searchStringLowerCase_1 = this.searchString.toLowerCase();
-                objects = objects.filter(function (e) { return e[_this.activeConfig.labelKey].toLowerCase().startsWith(searchStringLowerCase_1); });
-            }
+            // if (!this.disableSearch && this.searchString) {
+            //   const searchStringLowerCase = this.searchString.toLowerCase();
+            //   objects = objects.filter(e => e[this.activeConfig.labelKey].toLowerCase().startsWith(searchStringLowerCase));
+            // }
+            console.log("labelKey:" + this.activeConfig.labelKey);
+            console.log({ objects: objects });
             matches = objects;
             if (this.activeConfig.maxItems > 0) {
                 matches = matches.slice(0, this.activeConfig.maxItems);
