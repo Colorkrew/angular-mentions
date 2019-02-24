@@ -58,7 +58,7 @@ const styles = [`
   `
 })
 export class MentionListComponent implements OnInit {
-  @Input() labelKey: string = 'label';
+  @Input() labelKey = 'label';
   @Input() itemTemplate: TemplateRef<any>;
   @Output() itemClick = new EventEmitter();
   @ViewChild('list') list: ElementRef;
@@ -84,25 +84,25 @@ export class MentionListComponent implements OnInit {
       coords.left = nativeParentElement.offsetLeft + coords.left;
     }
     else if (iframe) {
-      let context: { iframe: HTMLIFrameElement, parent: Element } = { iframe: iframe, parent: iframe.offsetParent };
+      const context: { iframe: HTMLIFrameElement, parent: Element } = { iframe: iframe, parent: iframe.offsetParent };
       coords = getContentEditableCaretCoords(context);
     }
     else {
-      let doc = document.documentElement;
-      let scrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-      let scrollTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+      const doc = document.documentElement;
+      const scrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+      const scrollTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
 
       // bounding rectangles are relative to view, offsets are relative to container?
-      let caretRelativeToView = getContentEditableCaretCoords({ iframe: iframe });
-      let parentRelativeToContainer: ClientRect = nativeParentElement.getBoundingClientRect();
+      const caretRelativeToView = getContentEditableCaretCoords({ iframe: iframe });
+      const parentRelativeToContainer: ClientRect = nativeParentElement.getBoundingClientRect();
 
       coords.top = caretRelativeToView.top - parentRelativeToContainer.top + nativeParentElement.offsetTop - scrollTop;
       coords.left = caretRelativeToView.left - parentRelativeToContainer.left + nativeParentElement.offsetLeft - scrollLeft;
     }
-    let el: HTMLElement = this.element.nativeElement;
+    const el: HTMLElement = this.element.nativeElement;
     this.list.nativeElement.style.marginBottom = dropUp ? '24px' : null;
     el.className = dropUp ? 'dropup' : null;
-    el.style.position = "absolute";
+    el.style.position = 'absolute';
     el.style.left = coords.left + 'px';
     el.style.top = coords.top + 'px';
   }
@@ -113,12 +113,12 @@ export class MentionListComponent implements OnInit {
 
   activateNextItem() {
     // adjust scrollable-menu offset if the next item is out of view
-    let listEl: HTMLElement = this.list.nativeElement;
-    let activeEl = listEl.getElementsByClassName('active').item(0);
+    const listEl: HTMLElement = this.list.nativeElement;
+    const activeEl = listEl.getElementsByClassName('active').item(0);
     if (activeEl) {
-      let nextLiEl: HTMLElement = <HTMLElement> activeEl.nextSibling;
-      if (nextLiEl && nextLiEl.nodeName == "LI") {
-        let nextLiRect: ClientRect = nextLiEl.getBoundingClientRect();
+      const nextLiEl: HTMLElement = <HTMLElement> activeEl.nextSibling;
+      if (nextLiEl && nextLiEl.nodeName == 'LI') {
+        const nextLiRect: ClientRect = nextLiEl.getBoundingClientRect();
         if (nextLiRect.bottom > listEl.getBoundingClientRect().bottom) {
           listEl.scrollTop = nextLiEl.offsetTop + nextLiRect.height - listEl.clientHeight;
         }
@@ -130,12 +130,12 @@ export class MentionListComponent implements OnInit {
 
   activatePreviousItem() {
     // adjust the scrollable-menu offset if the previous item is out of view
-    let listEl: HTMLElement = this.list.nativeElement;
-    let activeEl = listEl.getElementsByClassName('active').item(0);
+    const listEl: HTMLElement = this.list.nativeElement;
+    const activeEl = listEl.getElementsByClassName('active').item(0);
     if (activeEl) {
-      let prevLiEl: HTMLElement = <HTMLElement> activeEl.previousSibling;
-      if (prevLiEl && prevLiEl.nodeName == "LI") {
-        let prevLiRect: ClientRect = prevLiEl.getBoundingClientRect();
+      const prevLiEl: HTMLElement = <HTMLElement> activeEl.previousSibling;
+      if (prevLiEl && prevLiEl.nodeName == 'LI') {
+        const prevLiRect: ClientRect = prevLiEl.getBoundingClientRect();
         if (prevLiRect.top < listEl.getBoundingClientRect().top) {
           listEl.scrollTop = prevLiEl.offsetTop;
         }

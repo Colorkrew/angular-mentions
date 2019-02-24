@@ -1,4 +1,14 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var mention_utils_1 = require("./mention-utils");
 var caret_coords_1 = require("./caret-coords");
@@ -10,7 +20,7 @@ var styles = ["\n.mentionItemList {\n  list-style: none;\n  border-collapse: col
  *
  * Copyright (c) 2016 Dan MacFarlane
  */
-var MentionListComponent = (function () {
+var MentionListComponent = /** @class */ (function () {
     function MentionListComponent(element) {
         this.element = element;
         this.labelKey = 'label';
@@ -51,7 +61,7 @@ var MentionListComponent = (function () {
         var el = this.element.nativeElement;
         this.list.nativeElement.style.marginBottom = dropUp ? '24px' : null;
         el.className = dropUp ? 'dropup' : null;
-        el.style.position = "absolute";
+        el.style.position = 'absolute';
         el.style.left = coords.left + 'px';
         el.style.top = coords.top + 'px';
     };
@@ -68,7 +78,7 @@ var MentionListComponent = (function () {
         var activeEl = listEl.getElementsByClassName('active').item(0);
         if (activeEl) {
             var nextLiEl = activeEl.nextSibling;
-            if (nextLiEl && nextLiEl.nodeName == "LI") {
+            if (nextLiEl && nextLiEl.nodeName == 'LI') {
                 var nextLiRect = nextLiEl.getBoundingClientRect();
                 if (nextLiRect.bottom > listEl.getBoundingClientRect().bottom) {
                     listEl.scrollTop = nextLiEl.offsetTop + nextLiRect.height - listEl.clientHeight;
@@ -84,7 +94,7 @@ var MentionListComponent = (function () {
         var activeEl = listEl.getElementsByClassName('active').item(0);
         if (activeEl) {
             var prevLiEl = activeEl.previousSibling;
-            if (prevLiEl && prevLiEl.nodeName == "LI") {
+            if (prevLiEl && prevLiEl.nodeName == 'LI') {
                 var prevLiRect = prevLiEl.getBoundingClientRect();
                 if (prevLiRect.top < listEl.getBoundingClientRect().top) {
                     listEl.scrollTop = prevLiEl.offsetTop;
@@ -97,24 +107,34 @@ var MentionListComponent = (function () {
     MentionListComponent.prototype.resetScroll = function () {
         this.list.nativeElement.scrollTop = 0;
     };
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", Object)
+    ], MentionListComponent.prototype, "labelKey", void 0);
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", core_1.TemplateRef)
+    ], MentionListComponent.prototype, "itemTemplate", void 0);
+    __decorate([
+        core_1.Output(),
+        __metadata("design:type", Object)
+    ], MentionListComponent.prototype, "itemClick", void 0);
+    __decorate([
+        core_1.ViewChild('list'),
+        __metadata("design:type", core_1.ElementRef)
+    ], MentionListComponent.prototype, "list", void 0);
+    __decorate([
+        core_1.ViewChild('defaultItemTemplate'),
+        __metadata("design:type", core_1.TemplateRef)
+    ], MentionListComponent.prototype, "defaultItemTemplate", void 0);
+    MentionListComponent = __decorate([
+        core_1.Component({
+            selector: 'mention-list',
+            styles: styles,
+            template: "\n    <ng-template #defaultItemTemplate let-item=\"item\">\n      {{item[labelKey]}}\n    </ng-template>\n    <ul #list [hidden]=\"hidden\" class=\"mentionItemList\">\n      <li *ngFor=\"let item of items; let i = index\" [ngClass]=\"{mentionItem: true, active: activeIndex==i}\">\n        <a class=\"dropdown-item\" (mousedown)=\"activeIndex=i;itemClick.emit();$event.preventDefault()\">\n          <ng-template [ngTemplateOutlet]=\"itemTemplate\" [ngTemplateOutletContext]=\"{'item':item}\"></ng-template>\n        </a>\n      </li>\n    </ul>\n  "
+        }),
+        __metadata("design:paramtypes", [core_1.ElementRef])
+    ], MentionListComponent);
     return MentionListComponent;
 }());
-MentionListComponent.decorators = [
-    { type: core_1.Component, args: [{
-                selector: 'mention-list',
-                styles: styles,
-                template: "\n    <ng-template #defaultItemTemplate let-item=\"item\">\n      {{item[labelKey]}}\n    </ng-template>\n    <ul #list [hidden]=\"hidden\" class=\"mentionItemList\">\n      <li *ngFor=\"let item of items; let i = index\" [ngClass]=\"{mentionItem: true, active: activeIndex==i}\">\n        <a class=\"dropdown-item\" (mousedown)=\"activeIndex=i;itemClick.emit();$event.preventDefault()\">\n          <ng-template [ngTemplateOutlet]=\"itemTemplate\" [ngTemplateOutletContext]=\"{'item':item}\"></ng-template>\n        </a>\n      </li>\n    </ul>\n  "
-            },] },
-];
-/** @nocollapse */
-MentionListComponent.ctorParameters = function () { return [
-    { type: core_1.ElementRef, },
-]; };
-MentionListComponent.propDecorators = {
-    'labelKey': [{ type: core_1.Input },],
-    'itemTemplate': [{ type: core_1.Input },],
-    'itemClick': [{ type: core_1.Output },],
-    'list': [{ type: core_1.ViewChild, args: ['list',] },],
-    'defaultItemTemplate': [{ type: core_1.ViewChild, args: ['defaultItemTemplate',] },],
-};
 exports.MentionListComponent = MentionListComponent;

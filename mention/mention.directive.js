@@ -1,4 +1,14 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var core_2 = require("@angular/core");
 var mention_list_component_1 = require("./mention-list.component");
@@ -20,7 +30,7 @@ var KEY_2 = 50;
  *
  * Copyright (c) 2017 Dan MacFarlane
  */
-var MentionDirective = (function () {
+var MentionDirective = /** @class */ (function () {
     function MentionDirective(_element, _componentResolver, _viewContainerRef) {
         var _this = this;
         this._element = _element;
@@ -95,9 +105,9 @@ var MentionDirective = (function () {
         // add the config
         this.triggerChars[config.triggerChar] = config;
         // for async update while menu/search is active
-        if (this.activeConfig && this.activeConfig.triggerChar == config.triggerChar) {
+        if (this.activeConfig && this.activeConfig.triggerChar === config.triggerChar) {
             this.activeConfig = config;
-            this.updateSearchList();
+            this.updateSearchList(false);
         }
     };
     MentionDirective.prototype.setIframe = function (iframe) {
@@ -128,6 +138,9 @@ var MentionDirective = (function () {
             if (!event.shiftKey && (charCode >= 65 && charCode <= 90)) {
                 charPressed = String.fromCharCode(charCode + 32);
             }
+            // else if (event.shiftKey && charCode === KEY_2) {
+            //   charPressed = this.config.triggerChar;
+            // }
             else {
                 // TODO (dmacfarlane) fix this for non-alpha keys
                 // http://stackoverflow.com/questions/2220196/how-to-decode-character-pressed-from-jquerys-keydowns-event-handler?lq=1
@@ -154,6 +167,7 @@ var MentionDirective = (function () {
             if (pos <= this.startPos) {
                 this.searchList.hidden = true;
             }
+            // ignore shift when pressed alone, but not when used with another key
             else if (event.keyCode !== KEY_SHIFT &&
                 !event.metaKey &&
                 !event.altKey &&
@@ -177,9 +191,9 @@ var MentionDirective = (function () {
                         // between element types (div and iframe do not preserve the space)
                         mention_utils_1.insertValue(nativeElement, this.startPos, pos, this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
                         // fire input event so angular bindings are updated
-                        if ("createEvent" in document) {
-                            var evt = document.createEvent("HTMLEvents");
-                            evt.initEvent("input", false, true);
+                        if ('createEvent' in document) {
+                            var evt = document.createEvent('HTMLEvents');
+                            evt.initEvent('input', false, true);
                             nativeElement.dispatchEvent(evt);
                         }
                         this.startPos = -1;
@@ -218,8 +232,9 @@ var MentionDirective = (function () {
             }
         }
     };
-    MentionDirective.prototype.updateSearchList = function () {
+    MentionDirective.prototype.updateSearchList = function (changeSearchListHidden) {
         var _this = this;
+        if (changeSearchListHidden === void 0) { changeSearchListHidden = true; }
         var matches = [];
         if (this.activeConfig && this.activeConfig.items) {
             var objects = this.activeConfig.items;
@@ -237,7 +252,9 @@ var MentionDirective = (function () {
         if (this.searchList) {
             this.searchList.labelKey = this.activeConfig.labelKey;
             this.searchList.items = matches;
-            this.searchList.hidden = matches.length == 0;
+            if (changeSearchListHidden) {
+                this.searchList.hidden = matches.length === 0;
+            }
         }
     };
     MentionDirective.prototype.showSearchList = function (nativeElement) {
@@ -250,7 +267,7 @@ var MentionDirective = (function () {
             this.searchList.itemTemplate = this.mentionListTemplate;
             componentRef.instance['itemClick'].subscribe(function () {
                 nativeElement.focus();
-                var fakeKeydown = { "keyCode": KEY_ENTER, "wasClick": true };
+                var fakeKeydown = { 'keyCode': KEY_ENTER, 'wasClick': true };
                 _this.keyHandler(fakeKeydown, nativeElement);
             });
         }
@@ -261,27 +278,35 @@ var MentionDirective = (function () {
             window.setTimeout(function () { return _this.searchList.resetScroll(); });
         }
     };
+    __decorate([
+        core_2.Input('mention'),
+        __metadata("design:type", Array),
+        __metadata("design:paramtypes", [Array])
+    ], MentionDirective.prototype, "mention", null);
+    __decorate([
+        core_2.Input(),
+        __metadata("design:type", Object)
+    ], MentionDirective.prototype, "mentionConfig", void 0);
+    __decorate([
+        core_2.Input(),
+        __metadata("design:type", core_1.TemplateRef)
+    ], MentionDirective.prototype, "mentionListTemplate", void 0);
+    __decorate([
+        core_2.Output(),
+        __metadata("design:type", Object)
+    ], MentionDirective.prototype, "searchTerm", void 0);
+    MentionDirective = __decorate([
+        core_1.Directive({
+            selector: '[mention], [mentionConfig]',
+            host: {
+                '(keydown)': 'keyHandler($event)',
+                '(blur)': 'blurHandler($event)'
+            }
+        }),
+        __metadata("design:paramtypes", [core_1.ElementRef,
+            core_1.ComponentFactoryResolver,
+            core_1.ViewContainerRef])
+    ], MentionDirective);
     return MentionDirective;
 }());
-MentionDirective.decorators = [
-    { type: core_1.Directive, args: [{
-                selector: '[mention], [mentionConfig]',
-                host: {
-                    '(keydown)': 'keyHandler($event)',
-                    '(blur)': 'blurHandler($event)'
-                }
-            },] },
-];
-/** @nocollapse */
-MentionDirective.ctorParameters = function () { return [
-    { type: core_1.ElementRef, },
-    { type: core_1.ComponentFactoryResolver, },
-    { type: core_1.ViewContainerRef, },
-]; };
-MentionDirective.propDecorators = {
-    'mention': [{ type: core_2.Input, args: ['mention',] },],
-    'mentionConfig': [{ type: core_2.Input },],
-    'mentionListTemplate': [{ type: core_2.Input },],
-    'searchTerm': [{ type: core_2.Output },],
-};
 exports.MentionDirective = MentionDirective;

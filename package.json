@@ -10,11 +10,10 @@
   "main": "src/mention/index.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dmacfarlane/angular-mentions.git"
+    "url": "https://github.com/IsaoCorp/angular-mentions"
   },
   "author": "Goalous",
   "license": "MIT",
-  "angular-cli": {},
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -22,10 +21,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "dist": "ngc -p src/mention"
+    "dist": "ngc -p src/mention && mv ./mention/src/mention mention.tmp && rm -rf mention && mv mention.tmp mention"
   },
-  "private": false,
-  "peerDependencies": {},
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.6.5",
     "@angular/common": "^7.2.6",

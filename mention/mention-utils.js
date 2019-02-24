@@ -1,6 +1,7 @@
+"use strict";
 // DOM element manipulation functions...
 //
-"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 function setValue(el, value) {
     //console.log("setValue", el.nodeName, "["+value+"]");
     if (isInputOrTextAreaElement(el)) {

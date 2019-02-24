@@ -1,6 +1,7 @@
+"use strict";
 /* From: https://github.com/component/textarea-caret-position */
 /* jshint browser: true */
-"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // The properties that we copy into a mirrored div.
 // Note that some browsers, such as Firefox,
 // do not concatenate properties, i.e. padding-top, bottom etc. -> padding,

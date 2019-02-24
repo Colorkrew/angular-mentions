@@ -1,6 +1,6 @@
-import { ElementRef, ComponentFactoryResolver, ViewContainerRef, TemplateRef } from "@angular/core";
-import { EventEmitter, OnChanges, SimpleChanges } from "@angular/core";
-import { MentionConfig } from "./mention-config";
+import { ElementRef, ComponentFactoryResolver, ViewContainerRef, TemplateRef } from '@angular/core';
+import { EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { MentionConfig } from './mention-config';
 import { MentionListComponent } from './mention-list.component';
 /**
  * Angular 2 Mentions.
@@ -29,12 +29,12 @@ export declare class MentionDirective implements OnChanges {
     iframe: any;
     constructor(_element: ElementRef, _componentResolver: ComponentFactoryResolver, _viewContainerRef: ViewContainerRef);
     ngOnChanges(changes: SimpleChanges): void;
-    private updateConfig();
-    private addConfig(config);
+    private updateConfig;
+    private addConfig;
     setIframe(iframe: HTMLIFrameElement): void;
     stopEvent(event: any): void;
     blurHandler(event: any): void;
     keyHandler(event: any, nativeElement?: HTMLInputElement): boolean;
-    updateSearchList(): void;
+    updateSearchList(changeSearchListHidden?: boolean): void;
     showSearchList(nativeElement: HTMLInputElement): void;
 }
