@@ -17,14 +17,13 @@ const styles = [`
   max-height: 300px;
   height: auto;
   background-color: white;
-  position: absolute;
-  top: 100%;
-  left: 0;
+  position: fixed;
+  top: auto;
+  left: auto;
   z-index: 1000;
   min-width: 160px;
   font-size: 14px;
   text-align: left;
-  border: 1px solid #ccc;
   border-radius: 2px;
 }
 .mentionItem:hover, .mentionItem.active {
