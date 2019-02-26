@@ -63,6 +63,9 @@ export class MentionDirective implements OnChanges {
   // event emitted whenever the search term changes
   @Output() searchTerm = new EventEmitter();
 
+  // event emitted when selected item on mention search list
+  @Output() selectedMention = new EventEmitter();
+
   // option to diable internal filtering. can be used to show the full list returned
   // from an async operation (or allows a custom filter function to be used - in future)
   private disableSearch = false;
@@ -225,6 +228,7 @@ export class MentionDirective implements OnChanges {
             // between element types (div and iframe do not preserve the space)
             insertValue(nativeElement, this.startPos, pos,
               this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
+            this.selectedMention.emit(this.searchList.activeItem);
             // fire input event so angular bindings are updated
             if ('createEvent' in document) {
               const evt = document.createEvent('HTMLEvents');

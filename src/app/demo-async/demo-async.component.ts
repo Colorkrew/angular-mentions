@@ -42,4 +42,8 @@ export class DemoAsyncComponent implements OnInit {
   handleError(e) {
     console.log(e);
   }
+
+  selectedMention(item: Object) {
+    console.log(item);
+  }
 }

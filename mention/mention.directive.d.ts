@@ -19,6 +19,7 @@ export declare class MentionDirective implements OnChanges {
     private DEFAULT_CONFIG;
     mentionListTemplate: TemplateRef<any>;
     searchTerm: EventEmitter<{}>;
+    selectedMention: EventEmitter<{}>;
     private disableSearch;
     private triggerChars;
     searchString: string;

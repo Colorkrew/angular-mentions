@@ -47,6 +47,8 @@ var MentionDirective = /** @class */ (function () {
         };
         // event emitted whenever the search term changes
         this.searchTerm = new core_2.EventEmitter();
+        // event emitted when selected item on mention search list
+        this.selectedMention = new core_2.EventEmitter();
         // option to diable internal filtering. can be used to show the full list returned
         // from an async operation (or allows a custom filter function to be used - in future)
         this.disableSearch = false;
@@ -195,6 +197,7 @@ var MentionDirective = /** @class */ (function () {
                         // value is inserted without a trailing space for consistency
                         // between element types (div and iframe do not preserve the space)
                         mention_utils_1.insertValue(nativeElement, this.startPos, pos, this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
+                        this.selectedMention.emit(this.searchList.activeItem);
                         // fire input event so angular bindings are updated
                         if ('createEvent' in document) {
                             var evt = document.createEvent('HTMLEvents');
@@ -303,6 +306,10 @@ var MentionDirective = /** @class */ (function () {
         core_2.Output(),
         __metadata("design:type", Object)
     ], MentionDirective.prototype, "searchTerm", void 0);
+    __decorate([
+        core_2.Output(),
+        __metadata("design:type", Object)
+    ], MentionDirective.prototype, "selectedMention", void 0);
     MentionDirective = __decorate([
         core_1.Directive({
             selector: '[mention], [mentionConfig]',
