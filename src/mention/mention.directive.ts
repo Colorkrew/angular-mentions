@@ -238,7 +238,9 @@ export class MentionDirective implements OnChanges {
             // between element types (div and iframe do not preserve the space)
             insertValue(nativeElement, this.startPos, pos,
               this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
+            document.execCommand('insertText', false, ' ');
             this.selectedMention.emit(this.searchList.activeItem);
+
             // fire input event so angular bindings are updated
             if ('createEvent' in document) {
               const evt = document.createEvent('HTMLEvents');

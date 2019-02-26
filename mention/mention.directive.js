@@ -199,6 +199,7 @@ var MentionDirective = /** @class */ (function () {
                         // value is inserted without a trailing space for consistency
                         // between element types (div and iframe do not preserve the space)
                         mention_utils_1.insertValue(nativeElement, this.startPos, pos, this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
+                        document.execCommand('insertText', false, ' ');
                         this.selectedMention.emit(this.searchList.activeItem);
                         // fire input event so angular bindings are updated
                         if ('createEvent' in document) {
