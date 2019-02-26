@@ -241,6 +241,10 @@ export class MentionDirective implements OnChanges {
             document.execCommand('insertText', false, ' ');
             this.selectedMention.emit(this.searchList.activeItem);
 
+            // Reset items
+            this.activeConfig.items = [];
+            this.searchList.items = [];
+
             // fire input event so angular bindings are updated
             if ('createEvent' in document) {
               const evt = document.createEvent('HTMLEvents');

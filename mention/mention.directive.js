@@ -201,6 +201,9 @@ var MentionDirective = /** @class */ (function () {
                         mention_utils_1.insertValue(nativeElement, this.startPos, pos, this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
                         document.execCommand('insertText', false, ' ');
                         this.selectedMention.emit(this.searchList.activeItem);
+                        // Reset items
+                        this.activeConfig.items = [];
+                        this.searchList.items = [];
                         // fire input event so angular bindings are updated
                         if ('createEvent' in document) {
                             var evt = document.createEvent('HTMLEvents');
