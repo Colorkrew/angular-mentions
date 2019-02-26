@@ -1,4 +1,4 @@
-import { ElementRef, ComponentFactoryResolver, ViewContainerRef, TemplateRef } from '@angular/core';
+import { ElementRef, ComponentFactoryResolver, ViewContainerRef, TemplateRef, ApplicationRef, Injector, ComponentRef } from '@angular/core';
 import { EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { MentionConfig } from './mention-config';
 import { MentionListComponent } from './mention-list.component';
@@ -12,6 +12,8 @@ export declare class MentionDirective implements OnChanges {
     private _element;
     private _componentResolver;
     private _viewContainerRef;
+    private appRef;
+    private injector;
     private mentionItems;
     mention: any[];
     mentionConfig: MentionConfig;
@@ -28,7 +30,7 @@ export declare class MentionDirective implements OnChanges {
     searchList: MentionListComponent;
     stopSearch: boolean;
     iframe: any;
-    constructor(_element: ElementRef, _componentResolver: ComponentFactoryResolver, _viewContainerRef: ViewContainerRef);
+    constructor(_element: ElementRef, _componentResolver: ComponentFactoryResolver, _viewContainerRef: ViewContainerRef, appRef: ApplicationRef, injector: Injector);
     ngOnChanges(changes: SimpleChanges): void;
     private updateConfig;
     private addConfig;
@@ -37,5 +39,6 @@ export declare class MentionDirective implements OnChanges {
     blurHandler(event: any): void;
     keyHandler(event: any, nativeElement?: HTMLInputElement): boolean;
     updateSearchList(changeSearchListHidden?: boolean): void;
+    appendComponentToBody(): ComponentRef<MentionListComponent>;
     showSearchList(nativeElement: HTMLInputElement): void;
 }

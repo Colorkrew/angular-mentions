@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var mention_utils_1 = require("./mention-utils");
 var caret_coords_1 = require("./caret-coords");
-var styles = ["\n.mentionItemList {\n  list-style: none;\n  border-collapse: collapse;\n  padding: 0;\n  margin: 2px 0 0;\n  box-shadow: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);\n  overflow: auto;\n  max-height: 300px;\n  height: auto;\n  background-color: white;\n  position: fixed;\n  top: auto;\n  left: auto;\n  z-index: 1000;\n  min-width: 160px;\n  font-size: 14px;\n  text-align: left;\n  border-radius: 2px;\n}\n.mentionItem:hover, .mentionItem.active {\n  background-color: #ccc;\n}\n[hidden] {\n  display: none;\n}\n"
+var styles = ["\n.mentionItemList {\n  list-style: none;\n  border-collapse: collapse;\n  padding: 0;\n  margin: 2px 0 0;\n  box-shadow: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);\n  overflow: auto;\n  max-height: 300px;\n  height: auto;\n  background-color: white;\n  position: absolute;\n  top: auto;\n  left: auto;\n  z-index: 1000;\n  min-width: 160px;\n  font-size: 14px;\n  text-align: left;\n  border-radius: 2px;\n}\n.mentionItem:hover, .mentionItem.active {\n  background-color: #ccc;\n}\n[hidden] {\n  display: none;\n}\n"
 ];
 /**
  * Angular 2 Mentions.
@@ -55,8 +55,11 @@ var MentionListComponent = /** @class */ (function () {
             // bounding rectangles are relative to view, offsets are relative to container?
             var caretRelativeToView = mention_utils_1.getContentEditableCaretCoords({ iframe: iframe });
             var parentRelativeToContainer = nativeParentElement.getBoundingClientRect();
-            coords.top = caretRelativeToView.top - parentRelativeToContainer.top + nativeParentElement.offsetTop - scrollTop;
-            coords.left = caretRelativeToView.left - parentRelativeToContainer.left + nativeParentElement.offsetLeft - scrollLeft;
+            // coords.top = caretRelativeToView.top - parentRelativeToContainer.top + nativeParentElement.offsetTop - scrollTop;
+            // coords.left = caretRelativeToView.left - parentRelativeToContainer.left + nativeParentElement.offsetLeft - scrollLeft;
+            // Not to depend on parent element by fixing bug that search list will be hidden if parent is overflow is hidden
+            coords.top = caretRelativeToView.top;
+            coords.left = caretRelativeToView.left;
         }
         var el = this.element.nativeElement;
         this.list.nativeElement.style.marginBottom = dropUp ? '24px' : null;

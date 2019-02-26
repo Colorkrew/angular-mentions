@@ -1,4 +1,12 @@
-import { Directive, ElementRef, ComponentFactoryResolver, ViewContainerRef, TemplateRef, HostBinding } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  ComponentFactoryResolver,
+  ViewContainerRef,
+  TemplateRef,
+  ApplicationRef,
+  Injector, EmbeddedViewRef, ComponentRef
+} from '@angular/core';
 import { Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/core';
 
 import { MentionConfig } from './mention-config';
@@ -82,7 +90,9 @@ export class MentionDirective implements OnChanges {
   constructor(
     private _element: ElementRef,
     private _componentResolver: ComponentFactoryResolver,
-    private _viewContainerRef: ViewContainerRef
+    private _viewContainerRef: ViewContainerRef,
+    private appRef: ApplicationRef,
+    private injector: Injector
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
@@ -300,11 +310,29 @@ export class MentionDirective implements OnChanges {
       }
     }
   }
-
+  appendComponentToBody(): ComponentRef<MentionListComponent> {
+    const componentRef = this._componentResolver
+      .resolveComponentFactory(MentionListComponent)
+      .create(this.injector);
+    this.appRef.attachView(componentRef.hostView);
+    const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
+      .rootNodes[0] as HTMLElement;
+    // Append to body or wherever you want
+    document.body.appendChild(domElem);
+    return componentRef;
+  }
   showSearchList(nativeElement: HTMLInputElement) {
     if (this.searchList == null) {
-      const componentFactory = this._componentResolver.resolveComponentFactory(MentionListComponent);
-      const componentRef = this._viewContainerRef.createComponent<MentionListComponent>(componentFactory);
+      const componentRef = this.appendComponentToBody();
+      // const componentRef = this._componentResolver
+      //   .resolveComponentFactory(MentionListComponent)
+      //   .create(this.injector);
+      // this.appRef.attachView(componentRef.hostView);
+      // const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
+      //   .rootNodes[0] as HTMLElement;
+      // // Append to body or wherever you want
+      // document.body.appendChild(domElem);
+
       this.searchList = componentRef.instance;
       this.searchList.position(nativeElement, this.iframe, this.activeConfig.dropUp);
       this.searchList.itemTemplate = this.mentionListTemplate;

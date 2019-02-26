@@ -31,11 +31,13 @@ var KEY_2 = 50;
  * Copyright (c) 2017 Dan MacFarlane
  */
 var MentionDirective = /** @class */ (function () {
-    function MentionDirective(_element, _componentResolver, _viewContainerRef) {
+    function MentionDirective(_element, _componentResolver, _viewContainerRef, appRef, injector) {
         var _this = this;
         this._element = _element;
         this._componentResolver = _componentResolver;
         this._viewContainerRef = _viewContainerRef;
+        this.appRef = appRef;
+        this.injector = injector;
         // the provided configuration object
         this.mentionConfig = { items: [] };
         this.DEFAULT_CONFIG = {
@@ -268,11 +270,29 @@ var MentionDirective = /** @class */ (function () {
             }
         }
     };
+    MentionDirective.prototype.appendComponentToBody = function () {
+        var componentRef = this._componentResolver
+            .resolveComponentFactory(mention_list_component_1.MentionListComponent)
+            .create(this.injector);
+        this.appRef.attachView(componentRef.hostView);
+        var domElem = componentRef.hostView
+            .rootNodes[0];
+        // Append to body or wherever you want
+        document.body.appendChild(domElem);
+        return componentRef;
+    };
     MentionDirective.prototype.showSearchList = function (nativeElement) {
         var _this = this;
         if (this.searchList == null) {
-            var componentFactory = this._componentResolver.resolveComponentFactory(mention_list_component_1.MentionListComponent);
-            var componentRef = this._viewContainerRef.createComponent(componentFactory);
+            var componentRef = this.appendComponentToBody();
+            // const componentRef = this._componentResolver
+            //   .resolveComponentFactory(MentionListComponent)
+            //   .create(this.injector);
+            // this.appRef.attachView(componentRef.hostView);
+            // const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
+            //   .rootNodes[0] as HTMLElement;
+            // // Append to body or wherever you want
+            // document.body.appendChild(domElem);
             this.searchList = componentRef.instance;
             this.searchList.position(nativeElement, this.iframe, this.activeConfig.dropUp);
             this.searchList.itemTemplate = this.mentionListTemplate;
@@ -320,7 +340,9 @@ var MentionDirective = /** @class */ (function () {
         }),
         __metadata("design:paramtypes", [core_1.ElementRef,
             core_1.ComponentFactoryResolver,
-            core_1.ViewContainerRef])
+            core_1.ViewContainerRef,
+            core_1.ApplicationRef,
+            core_1.Injector])
     ], MentionDirective);
     return MentionDirective;
 }());

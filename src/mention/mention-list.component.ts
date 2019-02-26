@@ -17,7 +17,7 @@ const styles = [`
   max-height: 300px;
   height: auto;
   background-color: white;
-  position: fixed;
+  position: absolute;
   top: auto;
   left: auto;
   z-index: 1000;
@@ -95,8 +95,11 @@ export class MentionListComponent implements OnInit {
       const caretRelativeToView = getContentEditableCaretCoords({ iframe: iframe });
       const parentRelativeToContainer: ClientRect = nativeParentElement.getBoundingClientRect();
 
-      coords.top = caretRelativeToView.top - parentRelativeToContainer.top + nativeParentElement.offsetTop - scrollTop;
-      coords.left = caretRelativeToView.left - parentRelativeToContainer.left + nativeParentElement.offsetLeft - scrollLeft;
+      // coords.top = caretRelativeToView.top - parentRelativeToContainer.top + nativeParentElement.offsetTop - scrollTop;
+      // coords.left = caretRelativeToView.left - parentRelativeToContainer.left + nativeParentElement.offsetLeft - scrollLeft;
+      // Not to depend on parent element by fixing bug that search list will be hidden if parent is overflow is hidden
+      coords.top = caretRelativeToView.top;
+      coords.left = caretRelativeToView.left;
     }
     const el: HTMLElement = this.element.nativeElement;
     this.list.nativeElement.style.marginBottom = dropUp ? '24px' : null;
