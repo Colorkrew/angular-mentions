@@ -30,6 +30,7 @@ export declare class MentionDirective implements OnChanges {
     searchList: MentionListComponent;
     stopSearch: boolean;
     iframe: any;
+    keyDownCode: number;
     constructor(_element: ElementRef, _componentResolver: ComponentFactoryResolver, _viewContainerRef: ViewContainerRef, appRef: ApplicationRef, injector: Injector);
     ngOnChanges(changes: SimpleChanges): void;
     private updateConfig;
@@ -37,7 +38,10 @@ export declare class MentionDirective implements OnChanges {
     setIframe(iframe: HTMLIFrameElement): void;
     stopEvent(event: any): void;
     blurHandler(event: any): void;
-    keyHandler(event: any, nativeElement?: HTMLInputElement): boolean;
+    getImeInputStatus(keyDownCode: number, keyUpCode: number): number;
+    onKeyDown(event: any, nativeElement?: HTMLInputElement): void;
+    onKeyUp(event: any, nativeElement?: HTMLInputElement): void;
+    keyHandler(event: any, nativeElement: HTMLInputElement): boolean;
     updateSearchList(changeSearchListHidden?: boolean): void;
     appendComponentToBody(): ComponentRef<MentionListComponent>;
     showSearchList(nativeElement: HTMLInputElement): void;

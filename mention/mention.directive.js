@@ -24,6 +24,11 @@ var KEY_UP = 38;
 var KEY_RIGHT = 39;
 var KEY_DOWN = 40;
 var KEY_2 = 50;
+var IME_INPUT_STATUS = Object.freeze({
+    NONE: 0,
+    INPUTTING: 1,
+    FIXED: 2
+});
 /**
  * Angular 2 Mentions.
  * https://github.com/dmacfarlane/angular-mentions
@@ -59,7 +64,6 @@ var MentionDirective = /** @class */ (function () {
     }
     Object.defineProperty(MentionDirective.prototype, "mention", {
         set: function (items) {
-            console.log({ items: items });
             this.mentionItems = items;
         },
         enumerable: true,
@@ -121,7 +125,7 @@ var MentionDirective = /** @class */ (function () {
         this.iframe = iframe;
     };
     MentionDirective.prototype.stopEvent = function (event) {
-        //if (event instanceof KeyboardEvent) { // does not work for iframe
+        // if (event instanceof Event) { // does not work for iframe
         if (!event.wasClick) {
             event.preventDefault();
             event.stopPropagation();
@@ -135,13 +139,36 @@ var MentionDirective = /** @class */ (function () {
             this.searchList.hidden = true;
         }
     };
-    MentionDirective.prototype.keyHandler = function (event, nativeElement) {
+    MentionDirective.prototype.getImeInputStatus = function (keyDownCode, keyUpCode) {
+        if (keyDownCode !== 229) {
+            return IME_INPUT_STATUS.NONE;
+        }
+        return keyUpCode === KEY_ENTER ? IME_INPUT_STATUS.FIXED : IME_INPUT_STATUS.INPUTTING;
+    };
+    MentionDirective.prototype.onKeyDown = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
+        this.keyDownCode = event.which || event.keyCode;
+        if (this.keyDownCode !== 229) {
+            this.keyHandler(event, nativeElement);
+        }
+    };
+    MentionDirective.prototype.onKeyUp = function (event, nativeElement) {
+        if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
+        var charCode = event.which || event.keyCode;
+        var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
+        if (imeInputStatus === IME_INPUT_STATUS.FIXED) {
+            this.keyHandler(event, nativeElement);
+        }
+    };
+    MentionDirective.prototype.keyHandler = function (event, nativeElement) {
+        var charCode = event.which || event.keyCode;
+        var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
+        console.log({ imeInputStatus: imeInputStatus });
+        // During IME input
         var val = mention_utils_1.getValue(nativeElement);
         var pos = mention_utils_1.getCaretPosition(nativeElement, this.iframe);
         var charPressed = event.key;
         if (!charPressed) {
-            var charCode = event.which || event.keyCode;
             if (!event.shiftKey && (charCode >= 65 && charCode <= 90)) {
                 charPressed = String.fromCharCode(charCode + 32);
             }
@@ -151,7 +178,7 @@ var MentionDirective = /** @class */ (function () {
             else {
                 // TODO (dmacfarlane) fix this for non-alpha keys
                 // http://stackoverflow.com/questions/2220196/how-to-decode-character-pressed-from-jquerys-keydowns-event-handler?lq=1
-                charPressed = String.fromCharCode(event.which || event.keyCode);
+                charPressed = String.fromCharCode(charCode);
             }
         }
         if (event.keyCode == KEY_ENTER && event.wasClick && pos < this.startPos) {
@@ -193,7 +220,7 @@ var MentionDirective = /** @class */ (function () {
                     this.searchList.hidden = this.stopSearch;
                 }
                 else if (!this.searchList.hidden) {
-                    if (event.keyCode === KEY_TAB || event.keyCode === KEY_ENTER) {
+                    if (event.keyCode === KEY_TAB || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)) {
                         this.stopEvent(event);
                         this.searchList.hidden = true;
                         // value is inserted without a trailing space for consistency
@@ -236,7 +263,8 @@ var MentionDirective = /** @class */ (function () {
                 }
                 else {
                     var mention = val.substring(this.startPos + 1, pos);
-                    if (event.keyCode !== KEY_BACKSPACE) {
+                    // console.log({mention, charPressed});
+                    if (event.keyCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) {
                         mention += charPressed;
                     }
                     this.searchString = mention;
@@ -249,18 +277,16 @@ var MentionDirective = /** @class */ (function () {
     MentionDirective.prototype.updateSearchList = function (changeSearchListHidden) {
         if (changeSearchListHidden === void 0) { changeSearchListHidden = true; }
         var matches = [];
-        console.log('updateSearchList');
+        // console.log('updateSearchList');
         if (this.activeConfig && this.activeConfig.items) {
-            console.log(this.activeConfig.items);
-            var objects = this.activeConfig.items;
+            // console.log(this.activeConfig.items);
+            //   let objects = this.activeConfig.items;
             // disabling the search relies on the async operation to do the filtering
             // if (!this.disableSearch && this.searchString) {
             //   const searchStringLowerCase = this.searchString.toLowerCase();
             //   objects = objects.filter(e => e[this.activeConfig.labelKey].toLowerCase().startsWith(searchStringLowerCase));
             // }
-            console.log("labelKey:" + this.activeConfig.labelKey);
-            console.log({ objects: objects });
-            matches = objects;
+            matches = this.activeConfig.items;
             if (this.activeConfig.maxItems > 0) {
                 matches = matches.slice(0, this.activeConfig.maxItems);
             }
@@ -289,14 +315,6 @@ var MentionDirective = /** @class */ (function () {
         var _this = this;
         if (this.searchList == null) {
             var componentRef = this.appendComponentToBody();
-            // const componentRef = this._componentResolver
-            //   .resolveComponentFactory(MentionListComponent)
-            //   .create(this.injector);
-            // this.appRef.attachView(componentRef.hostView);
-            // const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
-            //   .rootNodes[0] as HTMLElement;
-            // // Append to body or wherever you want
-            // document.body.appendChild(domElem);
             this.searchList = componentRef.instance;
             this.searchList.position(nativeElement, this.iframe, this.activeConfig.dropUp);
             this.searchList.itemTemplate = this.mentionListTemplate;
@@ -334,13 +352,27 @@ var MentionDirective = /** @class */ (function () {
         core_2.Output(),
         __metadata("design:type", Object)
     ], MentionDirective.prototype, "selectedMention", void 0);
+    __decorate([
+        core_1.HostListener('blur', ['$event']),
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", [Object]),
+        __metadata("design:returntype", void 0)
+    ], MentionDirective.prototype, "blurHandler", null);
+    __decorate([
+        core_1.HostListener('keydown', ['$event']),
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", [Object, HTMLInputElement]),
+        __metadata("design:returntype", void 0)
+    ], MentionDirective.prototype, "onKeyDown", null);
+    __decorate([
+        core_1.HostListener('keyup', ['$event']),
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", [Object, HTMLInputElement]),
+        __metadata("design:returntype", void 0)
+    ], MentionDirective.prototype, "onKeyUp", null);
     MentionDirective = __decorate([
         core_1.Directive({
             selector: '[mention], [mentionConfig]',
-            host: {
-                '(keydown)': 'keyHandler($event)',
-                '(blur)': 'blurHandler($event)'
-            }
         }),
         __metadata("design:paramtypes", [core_1.ElementRef,
             core_1.ComponentFactoryResolver,
