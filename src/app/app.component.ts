@@ -17,7 +17,7 @@ export class AppComponent {
       case '/config'  : return 'config';
       case '/async'   : return 'async';
       case '/options' : return 'options';
-      case '/async'   : return 'template';
+      case '/template'   : return 'template';
     }
   }
 }
