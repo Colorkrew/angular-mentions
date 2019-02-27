@@ -42,6 +42,7 @@ export declare class MentionDirective implements OnChanges {
     onKeyDown(event: any, nativeElement?: HTMLInputElement): void;
     onKeyUp(event: any, nativeElement?: HTMLInputElement): void;
     keyHandler(event: any, nativeElement: HTMLInputElement): boolean;
+    resetSearchList(): void;
     updateSearchList(changeSearchListHidden?: boolean): void;
     appendComponentToBody(): ComponentRef<MentionListComponent>;
     showSearchList(nativeElement: HTMLInputElement): void;

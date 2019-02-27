@@ -202,9 +202,11 @@ export class MentionDirective implements OnChanges {
   keyHandler(event: any, nativeElement: HTMLInputElement, ) {
     const charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
-    console.log({imeInputStatus});
     // During IME input
     const val: string = getValue(nativeElement);
+    if (this.activeConfig && val === this.activeConfig.triggerChar && charCode === KEY_BACKSPACE) {
+      this.resetSearchList();
+    }
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;
     if (!charPressed) {
@@ -220,12 +222,12 @@ export class MentionDirective implements OnChanges {
         charPressed = String.fromCharCode(charCode);
       }
     }
-    if (event.keyCode == KEY_ENTER && event.wasClick && pos < this.startPos) {
+    if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
       // put caret back in position prior to contenteditable menu click
       pos = this.startNode.length;
       setCaretPosition(this.startNode, pos, this.iframe);
     }
-    //console.log("keyHandler", this.startPos, pos, val, charPressed, event);
+    // console.log("keyHandler", this.startPos, pos, val, charPressed, event);
 
     const config = this.triggerChars[charPressed];
     if (config) {
@@ -272,8 +274,7 @@ export class MentionDirective implements OnChanges {
             this.selectedMention.emit(this.searchList.activeItem);
 
             // Reset items
-            this.activeConfig.items = [];
-            this.searchList.items = [];
+            this.resetSearchList();
 
             // fire input event so angular bindings are updated
             if ('createEvent' in document) {
@@ -317,6 +318,15 @@ export class MentionDirective implements OnChanges {
           this.updateSearchList();
         }
       }
+    }
+  }
+
+  resetSearchList() {
+    if (this.activeConfig) {
+      this.stopSearch = true;
+      this.activeConfig.items = [];
+      this.searchList.items = [];
+      this.searchList.hidden = true;
     }
   }
 

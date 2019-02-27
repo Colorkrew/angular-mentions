@@ -163,9 +163,11 @@ var MentionDirective = /** @class */ (function () {
     MentionDirective.prototype.keyHandler = function (event, nativeElement) {
         var charCode = event.which || event.keyCode;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
-        console.log({ imeInputStatus: imeInputStatus });
         // During IME input
         var val = mention_utils_1.getValue(nativeElement);
+        if (this.activeConfig && val === this.activeConfig.triggerChar && charCode === KEY_BACKSPACE) {
+            this.resetSearchList();
+        }
         var pos = mention_utils_1.getCaretPosition(nativeElement, this.iframe);
         var charPressed = event.key;
         if (!charPressed) {
@@ -181,12 +183,12 @@ var MentionDirective = /** @class */ (function () {
                 charPressed = String.fromCharCode(charCode);
             }
         }
-        if (event.keyCode == KEY_ENTER && event.wasClick && pos < this.startPos) {
+        if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
             // put caret back in position prior to contenteditable menu click
             pos = this.startNode.length;
             mention_utils_1.setCaretPosition(this.startNode, pos, this.iframe);
         }
-        //console.log("keyHandler", this.startPos, pos, val, charPressed, event);
+        // console.log("keyHandler", this.startPos, pos, val, charPressed, event);
         var config = this.triggerChars[charPressed];
         if (config) {
             this.activeConfig = config;
@@ -229,8 +231,7 @@ var MentionDirective = /** @class */ (function () {
                         document.execCommand('insertText', false, ' ');
                         this.selectedMention.emit(this.searchList.activeItem);
                         // Reset items
-                        this.activeConfig.items = [];
-                        this.searchList.items = [];
+                        this.resetSearchList();
                         // fire input event so angular bindings are updated
                         if ('createEvent' in document) {
                             var evt = document.createEvent('HTMLEvents');
@@ -272,6 +273,14 @@ var MentionDirective = /** @class */ (function () {
                     this.updateSearchList();
                 }
             }
+        }
+    };
+    MentionDirective.prototype.resetSearchList = function () {
+        if (this.activeConfig) {
+            this.stopSearch = true;
+            this.activeConfig.items = [];
+            this.searchList.items = [];
+            this.searchList.hidden = true;
         }
     };
     MentionDirective.prototype.updateSearchList = function (changeSearchListHidden) {
