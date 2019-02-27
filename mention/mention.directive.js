@@ -43,6 +43,7 @@ var MentionDirective = /** @class */ (function () {
         this._viewContainerRef = _viewContainerRef;
         this.appRef = appRef;
         this.injector = injector;
+        this.disabledMention = false;
         // the provided configuration object
         this.mentionConfig = { items: [] };
         this.DEFAULT_CONFIG = {
@@ -56,14 +57,18 @@ var MentionDirective = /** @class */ (function () {
         this.searchTerm = new core_2.EventEmitter();
         // event emitted when selected item on mention search list
         this.selectedMention = new core_2.EventEmitter();
+        // [Goalous Fix] Delete this option because originally there are some bugs if not async operation.
         // option to diable internal filtering. can be used to show the full list returned
         // from an async operation (or allows a custom filter function to be used - in future)
-        this.disableSearch = false;
+        // private disableSearch = false;
         this.triggerChars = {};
         this.searchString = '';
     }
     Object.defineProperty(MentionDirective.prototype, "mention", {
         set: function (items) {
+            if (this.disabledMention) {
+                return;
+            }
             this.mentionItems = items;
         },
         enumerable: true,
@@ -77,6 +82,9 @@ var MentionDirective = /** @class */ (function () {
     };
     MentionDirective.prototype.updateConfig = function () {
         var _this = this;
+        if (this.disabledMention) {
+            return;
+        }
         var config = this.mentionConfig;
         this.triggerChars = {};
         // use items from directive if they have been set
@@ -133,6 +141,9 @@ var MentionDirective = /** @class */ (function () {
         }
     };
     MentionDirective.prototype.blurHandler = function (event) {
+        if (this.disabledMention) {
+            return;
+        }
         this.stopEvent(event);
         this.stopSearch = true;
         if (this.searchList) {
@@ -147,6 +158,9 @@ var MentionDirective = /** @class */ (function () {
     };
     MentionDirective.prototype.onKeyDown = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
+        if (this.disabledMention) {
+            return;
+        }
         this.keyDownCode = event.which || event.keyCode;
         if (this.keyDownCode !== 229) {
             this.keyHandler(event, nativeElement);
@@ -154,6 +168,9 @@ var MentionDirective = /** @class */ (function () {
     };
     MentionDirective.prototype.onKeyUp = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
+        if (this.disabledMention) {
+            return;
+        }
         var charCode = event.which || event.keyCode;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
         if (imeInputStatus === IME_INPUT_STATUS.FIXED) {
@@ -288,8 +305,7 @@ var MentionDirective = /** @class */ (function () {
         var matches = [];
         // console.log('updateSearchList');
         if (this.activeConfig && this.activeConfig.items) {
-            // console.log(this.activeConfig.items);
-            //   let objects = this.activeConfig.items;
+            // let objects = this.activeConfig.items;
             // disabling the search relies on the async operation to do the filtering
             // if (!this.disableSearch && this.searchString) {
             //   const searchStringLowerCase = this.searchString.toLowerCase();
@@ -340,6 +356,10 @@ var MentionDirective = /** @class */ (function () {
             window.setTimeout(function () { return _this.searchList.resetScroll(); });
         }
     };
+    __decorate([
+        core_2.Input(),
+        __metadata("design:type", Object)
+    ], MentionDirective.prototype, "disabledMention", void 0);
     __decorate([
         core_2.Input('mention'),
         __metadata("design:type", Array),

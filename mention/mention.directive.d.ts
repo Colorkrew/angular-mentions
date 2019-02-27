@@ -14,6 +14,7 @@ export declare class MentionDirective implements OnChanges {
     private _viewContainerRef;
     private appRef;
     private injector;
+    disabledMention: boolean;
     private mentionItems;
     mention: any[];
     mentionConfig: MentionConfig;
@@ -22,7 +23,6 @@ export declare class MentionDirective implements OnChanges {
     mentionListTemplate: TemplateRef<any>;
     searchTerm: EventEmitter<{}>;
     selectedMention: EventEmitter<{}>;
-    private disableSearch;
     private triggerChars;
     searchString: string;
     startPos: number;

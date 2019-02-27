@@ -42,13 +42,15 @@ const IME_INPUT_STATUS = Object.freeze({
 })
 export class MentionDirective implements OnChanges {
 
-  // @Input()
-  // onNext: (searchKeyword: string) => any;
+  @Input() disabledMention = false;
 
   // stores the items passed to the mentions directive and used to populate the root items in mentionConfig
   private mentionItems: any[];
 
   @Input('mention') set mention(items: any[]) {
+    if (this.disabledMention) {
+      return;
+    }
     this.mentionItems = items;
 
   }
@@ -75,9 +77,10 @@ export class MentionDirective implements OnChanges {
   // event emitted when selected item on mention search list
   @Output() selectedMention = new EventEmitter();
 
+  // [Goalous Fix] Delete this option because originally there are some bugs if not async operation.
   // option to diable internal filtering. can be used to show the full list returned
   // from an async operation (or allows a custom filter function to be used - in future)
-  private disableSearch = false;
+  // private disableSearch = false;
 
   private triggerChars: {[key: string]: MentionConfig} = {};
 
@@ -105,6 +108,10 @@ export class MentionDirective implements OnChanges {
   }
 
   private updateConfig() {
+    if (this.disabledMention) {
+      return;
+    }
+
     const config = this.mentionConfig;
     this.triggerChars = {};
     // use items from directive if they have been set
@@ -168,6 +175,10 @@ export class MentionDirective implements OnChanges {
 
   @HostListener('blur', ['$event'])
   blurHandler(event: any) {
+    if (this.disabledMention) {
+      return;
+    }
+
     this.stopEvent(event);
     this.stopSearch = true;
     if (this.searchList) {
@@ -184,6 +195,10 @@ export class MentionDirective implements OnChanges {
 
   @HostListener('keydown', ['$event'])
   onKeyDown(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
+    if (this.disabledMention) {
+      return;
+    }
+
     this.keyDownCode = event.which || event.keyCode;
     if (this.keyDownCode !== 229) {
       this.keyHandler(event, nativeElement);
@@ -192,6 +207,10 @@ export class MentionDirective implements OnChanges {
 
   @HostListener('keyup', ['$event'])
   onKeyUp(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
+    if (this.disabledMention) {
+      return;
+    }
+
     const charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
     if (imeInputStatus === IME_INPUT_STATUS.FIXED) {
@@ -334,8 +353,7 @@ export class MentionDirective implements OnChanges {
     let matches: any[] = [];
     // console.log('updateSearchList');
     if (this.activeConfig && this.activeConfig.items) {
-      // console.log(this.activeConfig.items);
-      //   let objects = this.activeConfig.items;
+      // let objects = this.activeConfig.items;
       // disabling the search relies on the async operation to do the filtering
       // if (!this.disableSearch && this.searchString) {
       //   const searchStringLowerCase = this.searchString.toLowerCase();
