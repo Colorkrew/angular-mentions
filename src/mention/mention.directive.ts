@@ -327,8 +327,13 @@ export class MentionDirective implements OnChanges {
           return false;
         }
         else {
-          let mention = val.substring(this.startPos + 1, pos);
-          // console.log({mention, charPressed});
+          // [Goalous Fix]
+          // fix original bag that how to substr chara is wrong
+          // let mention = val.substring(this.startPos + 1, pos);
+          // e.g. before "aaaa\n @test" → after "@test"
+          const index = val.lastIndexOf('@');
+          let mention = val.substr(index + 1);
+
           if (event.keyCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) {
             mention += charPressed;
           }
