@@ -49,9 +49,9 @@ var MentionListComponent = /** @class */ (function () {
             coords = mention_utils_1.getContentEditableCaretCoords(context);
         }
         else {
-            var doc = document.documentElement;
-            var scrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-            var scrollTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+            // const doc = document.documentElement;
+            // const scrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+            // const scrollTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
             // bounding rectangles are relative to view, offsets are relative to container?
             var caretRelativeToView = mention_utils_1.getContentEditableCaretCoords({ iframe: iframe });
             var parentRelativeToContainer = nativeParentElement.getBoundingClientRect();
@@ -59,7 +59,10 @@ var MentionListComponent = /** @class */ (function () {
             // coords.left = caretRelativeToView.left - parentRelativeToContainer.left + nativeParentElement.offsetLeft - scrollLeft;
             // Not to depend on parent element by fixing bug that search list will be hidden if parent is overflow is hidden
             coords.top = caretRelativeToView.top;
-            coords.left = caretRelativeToView.left;
+            // [Goalous Fix]
+            // fix search list left position to show its width as same as parent
+            // coords.left = caretRelativeToView.left;
+            coords.left = parentRelativeToContainer.left;
         }
         var el = this.element.nativeElement;
         this.list.nativeElement.style.marginBottom = dropUp ? '24px' : null;
