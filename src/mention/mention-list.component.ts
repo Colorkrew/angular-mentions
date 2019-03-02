@@ -102,8 +102,9 @@ export class MentionListComponent implements OnInit {
       // [Goalous Fix]
       // fix search list left position to show its width as same as parent
       // coords.left = caretRelativeToView.left;
-      coords.left = parentRelativeToContainer.left;
+      coords.left = parentRelativeToContainer.left + 4;
 
+      this.list.nativeElement.style.width = (parentRelativeToContainer.right - parentRelativeToContainer.left - 12) + 'px';
     }
     const el: HTMLElement = this.element.nativeElement;
     this.list.nativeElement.style.marginBottom = dropUp ? '24px' : null;
