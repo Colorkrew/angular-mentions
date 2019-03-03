@@ -11,7 +11,7 @@ import { Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/
 
 import { MentionConfig } from './mention-config';
 import { MentionListComponent } from './mention-list.component';
-import { getCaretPosition, setCaretPosition } from './mention-utils';
+import { getCaretPosition, getElValueExcludeHtml, setCaretPosition } from './mention-utils';
 
 const KEY_BACKSPACE = 8;
 const KEY_TAB = 9;
@@ -217,46 +217,13 @@ export class MentionDirective implements OnChanges {
     }
   }
 
-  getSelectionHtml() {
-    let selection = null;
-    let range;
-    let oldBrowser = true;
-    if (!selection) {
-      selection = window.getSelection();
-      range = selection.getRangeAt(0);
-      oldBrowser = false;
-    } else {
-      // range = document.selection.createRange();
-    }
-
-    selection.modify('move', 'backward', 'lineboundary');
-    selection.modify('extend', 'forward', 'lineboundary');
-
-    // if (oldBrowser) {
-    //   const html = document.selection.createRange().htmlText;
-    //   range.select();
-    //   return html;
-    // }
-
-    const html = document.createElement('div');
-    const len = selection.rangeCount;
-    for (let i = 0; i < len; ++i) {
-      html.appendChild(selection.getRangeAt(i).cloneContents());
-    }
-
-    selection.removeAllRanges();
-    selection.addRange(range);
-    return html.innerHTML;
-  }
-
   keyHandler(event: any, nativeElement: HTMLInputElement, ) {
     const charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
 
-    // Fix bug: getValue gets all content but originally it is right to get only current row value
+    // Fix bug: getValue gets all content but originally it is right to get only current row value except html
     // const val: string = getValue(nativeElement);
-    const val: string = this.getSelectionHtml();
-
+    const val = getElValueExcludeHtml();
 
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;
@@ -274,9 +241,10 @@ export class MentionDirective implements OnChanges {
       }
     }
 
-    // if (this.activeConfig && val === this.activeConfig.triggerChar && charCode === KEY_BACKSPACE) {
-    //   this.resetSearchList();
-    // }
+    if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
+      this.resetSearchList();
+      return;
+    }
 
     if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
       // put caret back in position prior to contenteditable menu click
@@ -367,10 +335,9 @@ export class MentionDirective implements OnChanges {
         }
         else {
           let mention = val.substring(this.startPos + 1, pos);
+
           if (event.keyCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) {
             mention += charPressed;
-          } else if (event.keyCode === KEY_BACKSPACE) {
-            mention = mention.slice(0, -1);
           }
 
           if (mention.length > 0) {

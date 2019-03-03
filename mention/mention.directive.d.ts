@@ -41,7 +41,6 @@ export declare class MentionDirective implements OnChanges {
     getImeInputStatus(keyDownCode: number, keyUpCode: number): number;
     onKeyDown(event: any, nativeElement?: HTMLInputElement): void;
     onKeyUp(event: any, nativeElement?: HTMLInputElement): void;
-    getSelectionHtml(): string;
     keyHandler(event: any, nativeElement: HTMLInputElement): boolean;
     insertHtml(html: any, startPos: any, endPos: any): void;
     resetSearchList(): void;

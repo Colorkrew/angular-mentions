@@ -43,7 +43,10 @@ export class DemoAsyncComponent implements OnInit {
     return this.http.get('https://reqres.in/api/users?limit=30&label=' + term) // get filtered names
                .toPromise()
                .then(response => response.json().data)
-               .then(data => {console.log(data); return data})
+               .then(data => {
+                 // console.log(data);
+                 return data;
+               })
                .catch(this.handleError);
   }
   handleError(e) {

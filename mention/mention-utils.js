@@ -161,3 +161,36 @@ function localToRelativeCoordinates(ctx, element, coordinates) {
         }
     }
 }
+function getElValueExcludeHtml() {
+    var selection = null;
+    var range;
+    var oldBrowser = true;
+    if (!selection) {
+        selection = window.getSelection();
+        range = selection.getRangeAt(0);
+        oldBrowser = false;
+    }
+    else {
+        // range = document.selection.createRange();
+    }
+    selection.modify('move', 'backward', 'lineboundary');
+    selection.modify('extend', 'forward', 'lineboundary');
+    // if (oldBrowser) {
+    //   const html = document.selection.createRange().htmlText;
+    //   range.select();
+    //   return html;
+    // }
+    var html = document.createElement('div');
+    var len = selection.rangeCount;
+    for (var i = 0; i < len; ++i) {
+        html.appendChild(selection.getRangeAt(i).cloneContents());
+    }
+    selection.removeAllRanges();
+    selection.addRange(range);
+    var text = html.innerHTML;
+    // Exclude html from value e.g. `<span><a href="#">test</a></span>aaa` → `aaa`;
+    text = text.replace(/<span\b[^<]*(?:(?!<\/span>)<[^<]*)*<\/span>/ig, '');
+    text = text.replace(/&nbsp;/ig, ' ');
+    return text;
+}
+exports.getElValueExcludeHtml = getElValueExcludeHtml;

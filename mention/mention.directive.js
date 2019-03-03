@@ -177,40 +177,12 @@ var MentionDirective = /** @class */ (function () {
             this.keyHandler(event, nativeElement);
         }
     };
-    MentionDirective.prototype.getSelectionHtml = function () {
-        var selection = null;
-        var range;
-        var oldBrowser = true;
-        if (!selection) {
-            selection = window.getSelection();
-            range = selection.getRangeAt(0);
-            oldBrowser = false;
-        }
-        else {
-            // range = document.selection.createRange();
-        }
-        selection.modify('move', 'backward', 'lineboundary');
-        selection.modify('extend', 'forward', 'lineboundary');
-        // if (oldBrowser) {
-        //   const html = document.selection.createRange().htmlText;
-        //   range.select();
-        //   return html;
-        // }
-        var html = document.createElement('div');
-        var len = selection.rangeCount;
-        for (var i = 0; i < len; ++i) {
-            html.appendChild(selection.getRangeAt(i).cloneContents());
-        }
-        selection.removeAllRanges();
-        selection.addRange(range);
-        return html.innerHTML;
-    };
     MentionDirective.prototype.keyHandler = function (event, nativeElement) {
         var charCode = event.which || event.keyCode;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
-        // Fix bug: getValue gets all content but originally it is right to get only current row value
+        // Fix bug: getValue gets all content but originally it is right to get only current row value except html
         // const val: string = getValue(nativeElement);
-        var val = this.getSelectionHtml();
+        var val = mention_utils_1.getElValueExcludeHtml();
         var pos = mention_utils_1.getCaretPosition(nativeElement, this.iframe);
         var charPressed = event.key;
         if (!charPressed) {
@@ -226,9 +198,10 @@ var MentionDirective = /** @class */ (function () {
                 charPressed = String.fromCharCode(charCode);
             }
         }
-        // if (this.activeConfig && val === this.activeConfig.triggerChar && charCode === KEY_BACKSPACE) {
-        //   this.resetSearchList();
-        // }
+        if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
+            this.resetSearchList();
+            return;
+        }
         if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
             // put caret back in position prior to contenteditable menu click
             pos = this.startNode.length;
@@ -315,9 +288,6 @@ var MentionDirective = /** @class */ (function () {
                     var mention = val.substring(this.startPos + 1, pos);
                     if (event.keyCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) {
                         mention += charPressed;
-                    }
-                    else if (event.keyCode === KEY_BACKSPACE) {
-                        mention = mention.slice(0, -1);
                     }
                     if (mention.length > 0) {
                         this.searchString = mention;
