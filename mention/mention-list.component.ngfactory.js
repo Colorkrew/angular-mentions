@@ -14,11 +14,16 @@ var RenderType_MentionListComponent = i0.ɵcrt({ encapsulation: 0, styles: style
 exports.RenderType_MentionListComponent = RenderType_MentionListComponent;
 function View_MentionListComponent_1(_l) { return i0.ɵvid(0, [(_l()(), i0.ɵted(0, null, [" ", " "]))], null, function (_ck, _v) { var _co = _v.component; var currVal_0 = _v.context.item[_co.labelKey]; _ck(_v, 0, 0, currVal_0); }); }
 function View_MentionListComponent_3(_l) { return i0.ɵvid(0, [(_l()(), i0.ɵand(0, null, null, 0))], null, null); }
-function View_MentionListComponent_2(_l) { return i0.ɵvid(0, [(_l()(), i0.ɵeld(0, 0, null, null, 6, "li", [], null, null, null, null, null)), i0.ɵdid(1, 278528, null, 0, i1.NgClass, [i0.IterableDiffers, i0.KeyValueDiffers, i0.ElementRef, i0.Renderer2], { ngClass: [0, "ngClass"] }, null), i0.ɵpod(2, { mentionItem: 0, active: 1 }), (_l()(), i0.ɵeld(3, 0, null, null, 3, "a", [["class", "dropdown-item"]], null, [[null, "mousedown"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("mousedown" === en)) {
+function View_MentionListComponent_2(_l) { return i0.ɵvid(0, [(_l()(), i0.ɵeld(0, 0, null, null, 6, "li", [], null, null, null, null, null)), i0.ɵdid(1, 278528, null, 0, i1.NgClass, [i0.IterableDiffers, i0.KeyValueDiffers, i0.ElementRef, i0.Renderer2], { ngClass: [0, "ngClass"] }, null), i0.ɵpod(2, { mentionItem: 0, active: 1 }), (_l()(), i0.ɵeld(3, 0, null, null, 3, "a", [["class", "dropdown-item"]], null, [[null, "mousedown"], [null, "touchstart"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("mousedown" === en)) {
         _co.activeIndex = _v.context.index;
         _co.itemClick.emit();
         var pd_0 = ($event.preventDefault() !== false);
         ad = (pd_0 && ad);
+    } if (("touchstart" === en)) {
+        _co.activeIndex = _v.context.index;
+        _co.itemClick.emit();
+        var pd_1 = ($event.preventDefault() !== false);
+        ad = (pd_1 && ad);
     } return ad; }, null, null)), (_l()(), i0.ɵand(16777216, null, null, 2, null, View_MentionListComponent_3)), i0.ɵdid(5, 540672, null, 0, i1.NgTemplateOutlet, [i0.ViewContainerRef], { ngTemplateOutletContext: [0, "ngTemplateOutletContext"], ngTemplateOutlet: [1, "ngTemplateOutlet"] }, null), i0.ɵpod(6, { "item": 0 })], function (_ck, _v) { var _co = _v.component; var currVal_0 = _ck(_v, 2, 0, true, (_co.activeIndex == _v.context.index)); _ck(_v, 1, 0, currVal_0); var currVal_1 = _ck(_v, 6, 0, _v.context.$implicit); var currVal_2 = _co.itemTemplate; _ck(_v, 5, 0, currVal_1, currVal_2); }, null); }
 function View_MentionListComponent_0(_l) { return i0.ɵvid(0, [i0.ɵqud(402653184, 1, { list: 0 }), i0.ɵqud(402653184, 2, { defaultItemTemplate: 0 }), (_l()(), i0.ɵand(0, [[2, 2], ["defaultItemTemplate", 2]], null, 0, null, View_MentionListComponent_1)), (_l()(), i0.ɵeld(3, 0, [[1, 0], ["list", 1]], null, 2, "ul", [["class", "mentionItemList"]], [[8, "hidden", 0]], null, null, null, null)), (_l()(), i0.ɵand(16777216, null, null, 1, null, View_MentionListComponent_2)), i0.ɵdid(5, 278528, null, 0, i1.NgForOf, [i0.ViewContainerRef, i0.TemplateRef, i0.IterableDiffers], { ngForOf: [0, "ngForOf"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_1 = _co.items; _ck(_v, 5, 0, currVal_1); }, function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.hidden; _ck(_v, 3, 0, currVal_0); }); }
 exports.View_MentionListComponent_0 = View_MentionListComponent_0;
