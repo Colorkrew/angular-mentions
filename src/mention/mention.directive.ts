@@ -240,6 +240,7 @@ export class MentionDirective implements OnChanges {
         charPressed = String.fromCharCode(charCode);
       }
     }
+    console.log({val, pos, charPressed, startPos: this.startPos});
 
     if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
       this.resetSearchList();
@@ -296,7 +297,7 @@ export class MentionDirective implements OnChanges {
             // insertValue(nativeElement, this.startPos, pos,
             //   this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
             this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
-            document.execCommand('insertText', false, ' ');
+            document.execCommand('insertHTML', false, '&nbsp;');
             this.selectedMention.emit(this.searchList.activeItem);
 
             // Reset items
@@ -431,7 +432,10 @@ export class MentionDirective implements OnChanges {
       this.searchList.position(nativeElement, this.iframe, this.activeConfig.dropUp);
       this.searchList.itemTemplate = this.mentionListTemplate;
       componentRef.instance['itemClick'].subscribe(() => {
+        console.log('---itemClick');
         nativeElement.focus();
+        console.log({hidden: this.searchList.hidden});
+        console.log({stopSearch: this.stopSearch});
         const fakeKeydown = {'keyCode': KEY_ENTER, 'wasClick': true};
         this.keyHandler(fakeKeydown, nativeElement);
       });

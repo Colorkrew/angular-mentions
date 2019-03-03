@@ -198,6 +198,7 @@ var MentionDirective = /** @class */ (function () {
                 charPressed = String.fromCharCode(charCode);
             }
         }
+        console.log({ val: val, pos: pos, charPressed: charPressed, startPos: this.startPos });
         if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
             this.resetSearchList();
             return;
@@ -250,7 +251,7 @@ var MentionDirective = /** @class */ (function () {
                         // insertValue(nativeElement, this.startPos, pos,
                         //   this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
                         this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
-                        document.execCommand('insertText', false, ' ');
+                        document.execCommand('insertHTML', false, '&nbsp;');
                         this.selectedMention.emit(this.searchList.activeItem);
                         // Reset items
                         this.resetSearchList();
@@ -376,7 +377,10 @@ var MentionDirective = /** @class */ (function () {
             this.searchList.position(nativeElement, this.iframe, this.activeConfig.dropUp);
             this.searchList.itemTemplate = this.mentionListTemplate;
             componentRef.instance['itemClick'].subscribe(function () {
+                console.log('---itemClick');
                 nativeElement.focus();
+                console.log({ hidden: _this.searchList.hidden });
+                console.log({ stopSearch: _this.stopSearch });
                 var fakeKeydown = { 'keyCode': KEY_ENTER, 'wasClick': true };
                 _this.keyHandler(fakeKeydown, nativeElement);
             });

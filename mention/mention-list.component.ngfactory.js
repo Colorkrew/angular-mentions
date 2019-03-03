@@ -14,7 +14,7 @@ var RenderType_MentionListComponent = i0.ɵcrt({ encapsulation: 0, styles: style
 exports.RenderType_MentionListComponent = RenderType_MentionListComponent;
 function View_MentionListComponent_1(_l) { return i0.ɵvid(0, [(_l()(), i0.ɵted(0, null, [" ", " "]))], null, function (_ck, _v) { var _co = _v.component; var currVal_0 = _v.context.item[_co.labelKey]; _ck(_v, 0, 0, currVal_0); }); }
 function View_MentionListComponent_3(_l) { return i0.ɵvid(0, [(_l()(), i0.ɵand(0, null, null, 0))], null, null); }
-function View_MentionListComponent_2(_l) { return i0.ɵvid(0, [(_l()(), i0.ɵeld(0, 0, null, null, 6, "li", [], null, null, null, null, null)), i0.ɵdid(1, 278528, null, 0, i1.NgClass, [i0.IterableDiffers, i0.KeyValueDiffers, i0.ElementRef, i0.Renderer2], { ngClass: [0, "ngClass"] }, null), i0.ɵpod(2, { mentionItem: 0, active: 1 }), (_l()(), i0.ɵeld(3, 0, null, null, 3, "a", [["class", "dropdown-item"]], null, [[null, "mousedown"], [null, "touchstart"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("mousedown" === en)) {
+function View_MentionListComponent_2(_l) { return i0.ɵvid(0, [(_l()(), i0.ɵeld(0, 0, null, null, 6, "li", [], null, null, null, null, null)), i0.ɵdid(1, 278528, null, 0, i1.NgClass, [i0.IterableDiffers, i0.KeyValueDiffers, i0.ElementRef, i0.Renderer2], { ngClass: [0, "ngClass"] }, null), i0.ɵpod(2, { mentionItem: 0, active: 1 }), (_l()(), i0.ɵeld(3, 0, null, null, 3, "div", [["class", "dropdown-item"]], null, [[null, "mousedown"], [null, "touchstart"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("mousedown" === en)) {
         _co.activeIndex = _v.context.index;
         _co.itemClick.emit();
         var pd_0 = ($event.preventDefault() !== false);
