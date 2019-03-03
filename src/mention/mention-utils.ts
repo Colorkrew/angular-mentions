@@ -183,7 +183,6 @@ export function getElValueExcludeHtml(nativeElement: HTMLInputElement): string {
   range = selection.getRangeAt(0);
 
   let text = selection.anchorNode.data ? selection.anchorNode.data : '';
-  console.log(text);
 
   selection.modify('move', 'backward', 'lineboundary');
   selection.modify('extend', 'forward', 'lineboundary');

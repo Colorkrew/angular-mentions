@@ -168,7 +168,6 @@ function getElValueExcludeHtml(nativeElement) {
     selection = window.getSelection();
     range = selection.getRangeAt(0);
     var text = selection.anchorNode.data ? selection.anchorNode.data : '';
-    console.log(text);
     selection.modify('move', 'backward', 'lineboundary');
     selection.modify('extend', 'forward', 'lineboundary');
     // const html = document.createElement('div');
