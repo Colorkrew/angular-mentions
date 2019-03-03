@@ -198,6 +198,7 @@ var MentionDirective = /** @class */ (function () {
                 charPressed = String.fromCharCode(charCode);
             }
         }
+        console.log({ val: val, pos: pos, charPressed: charPressed, startPos: this.startPos, hidden: this.searchList.hidden });
         if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
             this.resetSearchList();
             return;
@@ -376,7 +377,9 @@ var MentionDirective = /** @class */ (function () {
             this.searchList.position(nativeElement, this.iframe, this.activeConfig.dropUp);
             this.searchList.itemTemplate = this.mentionListTemplate;
             componentRef.instance['itemClick'].subscribe(function () {
+                console.log('---itemClick');
                 nativeElement.focus();
+                console.log({ stopSearch: _this.stopSearch });
                 var fakeKeydown = { 'keyCode': KEY_ENTER, 'wasClick': true };
                 _this.keyHandler(fakeKeydown, nativeElement);
             });
