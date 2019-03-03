@@ -10,6 +10,7 @@ var common_1 = require("@angular/common");
 var core_1 = require("@angular/core");
 var mention_directive_1 = require("./mention.directive");
 var mention_list_component_1 = require("./mention-list.component");
+require("hammerjs");
 var MentionModule = /** @class */ (function () {
     function MentionModule() {
     }

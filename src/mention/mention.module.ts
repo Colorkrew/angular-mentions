@@ -3,6 +3,7 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 
 import { MentionDirective } from './mention.directive';
 import { MentionListComponent } from './mention-list.component';
+import 'hammerjs';
 
 @NgModule({
     imports: [

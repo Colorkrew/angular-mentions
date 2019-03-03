@@ -49,7 +49,7 @@ const styles = [`
     </ng-template>
     <ul #list [hidden]="hidden" class="mentionItemList">
       <li *ngFor="let item of items; let i = index" [ngClass]="{mentionItem: true, active: activeIndex==i}">
-        <a class="dropdown-item" 
+        <a class="dropdown-item"
            (mousedown)="activeIndex=i;itemClick.emit();$event.preventDefault()"
            (touchstart)="activeIndex=i;itemClick.emit();$event.preventDefault()"
         >

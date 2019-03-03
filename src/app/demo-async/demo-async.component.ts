@@ -20,17 +20,18 @@ export class DemoAsyncComponent implements OnInit {
   ngOnInit() {
     this.httpItems = this.searchTermStream.pipe(
       debounceTime(100),
-      distinctUntilChanged(),
+      // distinctUntilChanged(),
       // mergeMap((term: string) => this.getItems(term)));
       concatMap((term: string) => this.getItems(term)));
   }
   search(term: string) {
     console.log('---searchしてやる');
+    console.log({term});
     this.searchTermStream.next(term);
   }
   format(item: any): string {
     const username = item.last_name + ' ' + item.first_name;
-    return `<span class="mention" contenteditable="false"><a href="/circles/503/posts" target="_blank">My Public Circle</a></span>`;
+    return `<span class="mention" contenteditable="false"><a href="/circles/503/posts" target="_blank">${username}</a></span>`;
   }
 
 
