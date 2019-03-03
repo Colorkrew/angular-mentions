@@ -11,4 +11,4 @@ export declare function getContentEditableCaretCoords(ctx: {
     left: number;
     top: number;
 };
-export declare function getElValueExcludeHtml(): string;
+export declare function getElValueExcludeHtml(nativeElement: HTMLInputElement): string;

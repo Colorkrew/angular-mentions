@@ -30,7 +30,7 @@ export class DemoAsyncComponent implements OnInit {
   }
   format(item: any): string {
     const username = item.last_name + ' ' + item.first_name;
-    return `<span contenteditable="false"><a href="http://zurb.com" target="_blank" title="${username}">${username}</a></span>`;
+    return `<span class="mention" contenteditable="false"><a href="/circles/503/posts" target="_blank">My Public Circle</a></span>`;
   }
 
 

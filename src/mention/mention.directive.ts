@@ -11,7 +11,7 @@ import { Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/
 
 import { MentionConfig } from './mention-config';
 import { MentionListComponent } from './mention-list.component';
-import { getCaretPosition, getElValueExcludeHtml, setCaretPosition } from './mention-utils';
+import { getCaretPosition, getElValueExcludeHtml, getValue, setCaretPosition } from './mention-utils';
 
 const KEY_BACKSPACE = 8;
 const KEY_TAB = 9;
@@ -222,8 +222,8 @@ export class MentionDirective implements OnChanges {
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
 
     // Fix bug: getValue gets all content but originally it is right to get only current row value except html
-    // const val: string = getValue(nativeElement);
-    const val = getElValueExcludeHtml();
+    let val: string = getValue(nativeElement);
+    val = getElValueExcludeHtml(nativeElement);
 
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;

@@ -181,8 +181,8 @@ var MentionDirective = /** @class */ (function () {
         var charCode = event.which || event.keyCode;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
         // Fix bug: getValue gets all content but originally it is right to get only current row value except html
-        // const val: string = getValue(nativeElement);
-        var val = mention_utils_1.getElValueExcludeHtml();
+        var val = mention_utils_1.getValue(nativeElement);
+        val = mention_utils_1.getElValueExcludeHtml(nativeElement);
         var pos = mention_utils_1.getCaretPosition(nativeElement, this.iframe);
         var charPressed = event.key;
         if (!charPressed) {
