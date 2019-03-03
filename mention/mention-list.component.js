@@ -138,7 +138,7 @@ var MentionListComponent = /** @class */ (function () {
         core_1.Component({
             selector: 'mention-list',
             styles: styles,
-            template: "\n    <ng-template #defaultItemTemplate let-item=\"item\">\n      {{item[labelKey]}}\n    </ng-template>\n    <ul #list [hidden]=\"hidden\" class=\"mentionItemList\">\n      <li *ngFor=\"let item of items; let i = index\" [ngClass]=\"{mentionItem: true, active: activeIndex==i}\">\n        <a class=\"dropdown-item\" (mousedown)=\"activeIndex=i;itemClick.emit();$event.preventDefault()\">\n          <ng-template [ngTemplateOutlet]=\"itemTemplate\" [ngTemplateOutletContext]=\"{'item':item}\"></ng-template>\n        </a>\n      </li>\n    </ul>\n  "
+            template: "\n    <ng-template #defaultItemTemplate let-item=\"item\">\n      {{item[labelKey]}}\n    </ng-template>\n    <ul #list [hidden]=\"hidden\" class=\"mentionItemList\">\n      <li *ngFor=\"let item of items; let i = index\" [ngClass]=\"{mentionItem: true, active: activeIndex==i}\">\n        <a class=\"dropdown-item\" \n           (mousedown)=\"activeIndex=i;itemClick.emit();$event.preventDefault()\"\n           (touchstart)=\"activeIndex=i;itemClick.emit();$event.preventDefault()\"\n        >\n          <ng-template [ngTemplateOutlet]=\"itemTemplate\" [ngTemplateOutletContext]=\"{'item':item}\"></ng-template>\n        </a>\n      </li>\n    </ul>\n  "
         }),
         __metadata("design:paramtypes", [core_1.ElementRef])
     ], MentionListComponent);
