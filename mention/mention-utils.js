@@ -161,3 +161,26 @@ function localToRelativeCoordinates(ctx, element, coordinates) {
         }
     }
 }
+function getElValueExcludeHtml(nativeElement) {
+    var selection = null;
+    var range;
+    nativeElement.focus();
+    selection = window.getSelection();
+    range = selection.getRangeAt(0);
+    var text = selection.anchorNode.data ? selection.anchorNode.data : '';
+    selection.modify('move', 'backward', 'lineboundary');
+    selection.modify('extend', 'forward', 'lineboundary');
+    // const html = document.createElement('div');
+    // const len = selection.rangeCount;
+    // for (let i = 0; i < len; ++i) {
+    //   html.appendChild(selection.getRangeAt(i).cloneContents());
+    // }
+    selection.removeAllRanges();
+    selection.addRange(range);
+    // let text =  html.innerHTML;
+    // Exclude html from value e.g. `<span><a href="#">test</a></span>aaa` → `aaa`;
+    text = text.replace(/<span\b[^<]*(?:(?!<\/span>)<[^<]*)*<\/span>/ig, '');
+    text = text.replace(/&nbsp;/ig, ' ');
+    return text;
+}
+exports.getElValueExcludeHtml = getElValueExcludeHtml;

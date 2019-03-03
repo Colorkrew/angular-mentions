@@ -180,11 +180,9 @@ var MentionDirective = /** @class */ (function () {
     MentionDirective.prototype.keyHandler = function (event, nativeElement) {
         var charCode = event.which || event.keyCode;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
-        // During IME input
+        // Fix bug: getValue gets all content but originally it is right to get only current row value except html
         var val = mention_utils_1.getValue(nativeElement);
-        if (this.activeConfig && val === this.activeConfig.triggerChar && charCode === KEY_BACKSPACE) {
-            this.resetSearchList();
-        }
+        val = mention_utils_1.getElValueExcludeHtml(nativeElement);
         var pos = mention_utils_1.getCaretPosition(nativeElement, this.iframe);
         var charPressed = event.key;
         if (!charPressed) {
@@ -199,6 +197,10 @@ var MentionDirective = /** @class */ (function () {
                 // http://stackoverflow.com/questions/2220196/how-to-decode-character-pressed-from-jquerys-keydowns-event-handler?lq=1
                 charPressed = String.fromCharCode(charCode);
             }
+        }
+        if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
+            this.resetSearchList();
+            return;
         }
         if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
             // put caret back in position prior to contenteditable menu click
@@ -233,7 +235,7 @@ var MentionDirective = /** @class */ (function () {
                 }
                 else if (event.keyCode === KEY_BACKSPACE && pos > 0) {
                     pos--;
-                    if (pos == this.startPos) {
+                    if (pos === this.startPos) {
                         this.stopSearch = true;
                     }
                     this.searchList.hidden = this.stopSearch;
@@ -242,9 +244,12 @@ var MentionDirective = /** @class */ (function () {
                     if (event.keyCode === KEY_TAB || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)) {
                         this.stopEvent(event);
                         this.searchList.hidden = true;
+                        // [Goalous Fix] original fix to support to insert mention html when selected mention item
                         // value is inserted without a trailing space for consistency
                         // between element types (div and iframe do not preserve the space)
-                        mention_utils_1.insertValue(nativeElement, this.startPos, pos, this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
+                        // insertValue(nativeElement, this.startPos, pos,
+                        //   this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
+                        this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
                         document.execCommand('insertText', false, ' ');
                         this.selectedMention.emit(this.searchList.activeItem);
                         // Reset items
@@ -281,15 +286,43 @@ var MentionDirective = /** @class */ (function () {
                 }
                 else {
                     var mention = val.substring(this.startPos + 1, pos);
-                    // console.log({mention, charPressed});
                     if (event.keyCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) {
                         mention += charPressed;
                     }
-                    this.searchString = mention;
-                    this.searchTerm.emit(this.searchString);
-                    this.updateSearchList();
+                    if (mention.length > 0) {
+                        this.searchString = mention;
+                        this.searchTerm.emit(this.searchString);
+                        this.updateSearchList();
+                    }
+                    else {
+                        this.searchList.items = [];
+                    }
                 }
             }
+        }
+    };
+    MentionDirective.prototype.insertHtml = function (html, startPos, endPos) {
+        var range = void 0, sel = void 0;
+        sel = window.getSelection();
+        range = document.createRange();
+        range.setStart(sel.anchorNode, startPos);
+        range.setEnd(sel.anchorNode, endPos);
+        range.deleteContents();
+        var el = document.createElement('div');
+        el.innerHTML = html;
+        var frag = document.createDocumentFragment();
+        var node = void 0, lastNode = void 0;
+        while (node = el.firstChild) {
+            lastNode = frag.appendChild(node);
+        }
+        range.insertNode(frag);
+        // Preserve the selection
+        if (lastNode) {
+            range = range.cloneRange();
+            range.setStartAfter(lastNode);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
         }
     };
     MentionDirective.prototype.resetSearchList = function () {
@@ -303,7 +336,6 @@ var MentionDirective = /** @class */ (function () {
     MentionDirective.prototype.updateSearchList = function (changeSearchListHidden) {
         if (changeSearchListHidden === void 0) { changeSearchListHidden = true; }
         var matches = [];
-        // console.log('updateSearchList');
         if (this.activeConfig && this.activeConfig.items) {
             // let objects = this.activeConfig.items;
             // disabling the search relies on the async operation to do the filtering

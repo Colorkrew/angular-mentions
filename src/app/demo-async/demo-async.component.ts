@@ -1,5 +1,5 @@
 
-import {switchMap, distinctUntilChanged, debounceTime} from 'rxjs/operators';
+import { switchMap, distinctUntilChanged, debounceTime, mergeMap, concatMap } from 'rxjs/operators';
 import { Component, OnInit } from '@angular/core';
 import { Http } from '@angular/http';
 
@@ -19,13 +19,20 @@ export class DemoAsyncComponent implements OnInit {
   private searchTermStream = new Subject();
   ngOnInit() {
     this.httpItems = this.searchTermStream.pipe(
-      debounceTime(300),
+      debounceTime(100),
       distinctUntilChanged(),
-      switchMap((term: string) => this.getItems(term)));
+      // mergeMap((term: string) => this.getItems(term)));
+      concatMap((term: string) => this.getItems(term)));
   }
   search(term: string) {
+    console.log('---searchしてやる');
     this.searchTermStream.next(term);
   }
+  format(item: any): string {
+    const username = item.last_name + ' ' + item.first_name;
+    return `<span class="mention" contenteditable="false"><a href="/circles/503/posts" target="_blank">My Public Circle</a></span>`;
+  }
+
 
   // this should be in a separate demo-async.service.ts file
   constructor(private http: Http) { }
@@ -36,7 +43,10 @@ export class DemoAsyncComponent implements OnInit {
     return this.http.get('https://reqres.in/api/users?limit=30&label=' + term) // get filtered names
                .toPromise()
                .then(response => response.json().data)
-               .then(data => {console.log(data); return data})
+               .then(data => {
+                 // console.log(data);
+                 return data;
+               })
                .catch(this.handleError);
   }
   handleError(e) {

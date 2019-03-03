@@ -63,8 +63,8 @@ export class MentionListComponent implements OnInit {
   @ViewChild('list') list: ElementRef;
   @ViewChild('defaultItemTemplate') defaultItemTemplate: TemplateRef<any>;
   items = [];
-  activeIndex: number = 0;
-  hidden: boolean = false;
+  activeIndex = 0;
+  hidden = false;
   constructor(private element: ElementRef) {}
 
   ngOnInit() {
@@ -87,9 +87,9 @@ export class MentionListComponent implements OnInit {
       coords = getContentEditableCaretCoords(context);
     }
     else {
-      const doc = document.documentElement;
-      const scrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-      const scrollTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+      // const doc = document.documentElement;
+      // const scrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+      // const scrollTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
 
       // bounding rectangles are relative to view, offsets are relative to container?
       const caretRelativeToView = getContentEditableCaretCoords({ iframe: iframe });
@@ -99,7 +99,12 @@ export class MentionListComponent implements OnInit {
       // coords.left = caretRelativeToView.left - parentRelativeToContainer.left + nativeParentElement.offsetLeft - scrollLeft;
       // Not to depend on parent element by fixing bug that search list will be hidden if parent is overflow is hidden
       coords.top = caretRelativeToView.top;
-      coords.left = caretRelativeToView.left;
+      // [Goalous Fix]
+      // fix search list left position to show its width as same as parent
+      // coords.left = caretRelativeToView.left;
+      coords.left = parentRelativeToContainer.left + 4;
+
+      this.list.nativeElement.style.width = (parentRelativeToContainer.right - parentRelativeToContainer.left - 12) + 'px';
     }
     const el: HTMLElement = this.element.nativeElement;
     this.list.nativeElement.style.marginBottom = dropUp ? '24px' : null;

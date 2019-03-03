@@ -11,7 +11,7 @@ import { Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/
 
 import { MentionConfig } from './mention-config';
 import { MentionListComponent } from './mention-list.component';
-import { getValue, insertValue, getCaretPosition, setCaretPosition } from './mention-utils';
+import { getCaretPosition, getElValueExcludeHtml, getValue, setCaretPosition } from './mention-utils';
 
 const KEY_BACKSPACE = 8;
 const KEY_TAB = 9;
@@ -210,7 +210,6 @@ export class MentionDirective implements OnChanges {
     if (this.disabledMention) {
       return;
     }
-
     const charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
     if (imeInputStatus === IME_INPUT_STATUS.FIXED) {
@@ -221,11 +220,11 @@ export class MentionDirective implements OnChanges {
   keyHandler(event: any, nativeElement: HTMLInputElement, ) {
     const charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
-    // During IME input
-    const val: string = getValue(nativeElement);
-    if (this.activeConfig && val === this.activeConfig.triggerChar && charCode === KEY_BACKSPACE) {
-      this.resetSearchList();
-    }
+
+    // Fix bug: getValue gets all content but originally it is right to get only current row value except html
+    let val: string = getValue(nativeElement);
+    val = getElValueExcludeHtml(nativeElement);
+
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;
     if (!charPressed) {
@@ -241,6 +240,12 @@ export class MentionDirective implements OnChanges {
         charPressed = String.fromCharCode(charCode);
       }
     }
+
+    if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
+      this.resetSearchList();
+      return;
+    }
+
     if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
       // put caret back in position prior to contenteditable menu click
       pos = this.startNode.length;
@@ -259,8 +264,7 @@ export class MentionDirective implements OnChanges {
       // Comment outt prevent to show search list when just input triggerChara
       // this.updateSearchList();
       // this.activeConfig.items = [];
-    }
-    else if (this.startPos >= 0 && !this.stopSearch) {
+    } else if (this.startPos >= 0 && !this.stopSearch) {
       if (pos <= this.startPos) {
         this.searchList.hidden = true;
       }
@@ -276,7 +280,7 @@ export class MentionDirective implements OnChanges {
         }
         else if (event.keyCode === KEY_BACKSPACE && pos > 0) {
           pos--;
-          if (pos == this.startPos) {
+          if (pos === this.startPos) {
             this.stopSearch = true;
           }
           this.searchList.hidden = this.stopSearch;
@@ -285,10 +289,13 @@ export class MentionDirective implements OnChanges {
           if (event.keyCode === KEY_TAB || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)) {
             this.stopEvent(event);
             this.searchList.hidden = true;
+
+            // [Goalous Fix] original fix to support to insert mention html when selected mention item
             // value is inserted without a trailing space for consistency
             // between element types (div and iframe do not preserve the space)
-            insertValue(nativeElement, this.startPos, pos,
-              this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
+            // insertValue(nativeElement, this.startPos, pos,
+            //   this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
+            this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
             document.execCommand('insertText', false, ' ');
             this.selectedMention.emit(this.searchList.activeItem);
 
@@ -328,15 +335,49 @@ export class MentionDirective implements OnChanges {
         }
         else {
           let mention = val.substring(this.startPos + 1, pos);
-          // console.log({mention, charPressed});
+
           if (event.keyCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) {
             mention += charPressed;
           }
-          this.searchString = mention;
-          this.searchTerm.emit(this.searchString);
-          this.updateSearchList();
+
+          if (mention.length > 0) {
+            this.searchString = mention;
+            this.searchTerm.emit(this.searchString);
+            this.updateSearchList();
+          } else {
+            this.searchList.items = [];
+          }
         }
       }
+    }
+  }
+
+  insertHtml(html, startPos, endPos) {
+    let range = void 0,
+      sel = void 0;
+    sel = window.getSelection();
+    range = document.createRange();
+    range.setStart(sel.anchorNode, startPos);
+    range.setEnd(sel.anchorNode, endPos);
+    range.deleteContents();
+
+    const el = document.createElement('div');
+    el.innerHTML = html;
+    const frag = document.createDocumentFragment();
+    let node = void 0,
+      lastNode = void 0;
+    while (node = el.firstChild) {
+      lastNode = frag.appendChild(node);
+    }
+    range.insertNode(frag);
+
+    // Preserve the selection
+    if (lastNode) {
+      range = range.cloneRange();
+      range.setStartAfter(lastNode);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
     }
   }
 
@@ -351,7 +392,6 @@ export class MentionDirective implements OnChanges {
 
   updateSearchList(changeSearchListHidden = true) {
     let matches: any[] = [];
-    // console.log('updateSearchList');
     if (this.activeConfig && this.activeConfig.items) {
       // let objects = this.activeConfig.items;
       // disabling the search relies on the async operation to do the filtering
