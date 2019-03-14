@@ -202,7 +202,7 @@ var MentionDirective = /** @class */ (function () {
                 charPressed = String.fromCharCode(charCode);
             }
         }
-        console.log({ val: val, pos: pos, charPressed: charPressed, startPos: this.startPos });
+        // console.log({val, pos, charPressed, startPos: this.startPos});
         if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
             this.resetSearchList();
             return;

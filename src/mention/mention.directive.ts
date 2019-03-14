@@ -244,7 +244,7 @@ export class MentionDirective implements OnChanges {
         charPressed = String.fromCharCode(charCode);
       }
     }
-    console.log({val, pos, charPressed, startPos: this.startPos});
+    // console.log({val, pos, charPressed, startPos: this.startPos});
 
     if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
       this.resetSearchList();
