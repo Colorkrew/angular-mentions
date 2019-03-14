@@ -31,6 +31,7 @@ export declare class MentionDirective implements OnChanges {
     stopSearch: boolean;
     iframe: any;
     keyDownCode: number;
+    isComposing: boolean;
     constructor(_element: ElementRef, _componentResolver: ComponentFactoryResolver, _viewContainerRef: ViewContainerRef, appRef: ApplicationRef, injector: Injector);
     ngOnChanges(changes: SimpleChanges): void;
     private updateConfig;
