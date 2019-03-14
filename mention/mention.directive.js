@@ -63,6 +63,7 @@ var MentionDirective = /** @class */ (function () {
         // private disableSearch = false;
         this.triggerChars = {};
         this.searchString = '';
+        this.isComposing = false;
     }
     Object.defineProperty(MentionDirective.prototype, "mention", {
         set: function (items) {
@@ -180,6 +181,9 @@ var MentionDirective = /** @class */ (function () {
     MentionDirective.prototype.keyHandler = function (event, nativeElement) {
         var charCode = event.which || event.keyCode;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
+        if (!event.wasClick) {
+            this.isComposing = event.isComposing;
+        }
         // Fix bug: getValue gets all content but originally it is right to get only current row value except html
         var val = mention_utils_1.getValue(nativeElement);
         val = mention_utils_1.getElValueExcludeHtml(nativeElement);
@@ -198,7 +202,7 @@ var MentionDirective = /** @class */ (function () {
                 charPressed = String.fromCharCode(charCode);
             }
         }
-        console.log({ val: val, pos: pos, charPressed: charPressed, startPos: this.startPos });
+        // console.log({val, pos, charPressed, startPos: this.startPos});
         if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
             this.resetSearchList();
             return;
@@ -242,7 +246,9 @@ var MentionDirective = /** @class */ (function () {
                     this.searchList.hidden = this.stopSearch;
                 }
                 else if (!this.searchList.hidden) {
-                    if (event.keyCode === KEY_TAB || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)) {
+                    if (event.keyCode === KEY_TAB
+                        || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)
+                        || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.FIXED && event.wasClick)) {
                         this.stopEvent(event);
                         this.searchList.hidden = true;
                         // [Goalous Fix] original fix to support to insert mention html when selected mention item
@@ -252,15 +258,21 @@ var MentionDirective = /** @class */ (function () {
                         //   this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
                         this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
                         document.execCommand('insertHTML', false, '&nbsp;');
+                        if (this.isComposing && event.wasClick) {
+                            nativeElement.blur();
+                            this.isComposing = false;
+                        }
                         this.selectedMention.emit(this.searchList.activeItem);
                         // Reset items
                         this.resetSearchList();
+                        // [Goalous Fix] Comment out becuase this cause web page crash
                         // fire input event so angular bindings are updated
-                        if ('createEvent' in document) {
-                            var evt = document.createEvent('HTMLEvents');
-                            evt.initEvent('input', false, true);
-                            nativeElement.dispatchEvent(evt);
-                        }
+                        // if ('createEvent' in document) {
+                        //   const evt = document.createEvent('HTMLEvents');
+                        //   evt.initEvent('input', false, true);
+                        //
+                        //   nativeElement.dispatchEvent(evt);
+                        // }
                         this.startPos = -1;
                         return false;
                     }
@@ -377,10 +389,7 @@ var MentionDirective = /** @class */ (function () {
             this.searchList.position(nativeElement, this.iframe, this.activeConfig.dropUp);
             this.searchList.itemTemplate = this.mentionListTemplate;
             componentRef.instance['itemClick'].subscribe(function () {
-                console.log('---itemClick');
                 nativeElement.focus();
-                console.log({ hidden: _this.searchList.hidden });
-                console.log({ stopSearch: _this.stopSearch });
                 var fakeKeydown = { 'keyCode': KEY_ENTER, 'wasClick': true };
                 _this.keyHandler(fakeKeydown, nativeElement);
             });
