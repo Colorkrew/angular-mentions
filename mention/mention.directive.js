@@ -246,7 +246,9 @@ var MentionDirective = /** @class */ (function () {
                     this.searchList.hidden = this.stopSearch;
                 }
                 else if (!this.searchList.hidden) {
-                    if (event.keyCode === KEY_TAB || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)) {
+                    if (event.keyCode === KEY_TAB
+                        || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)
+                        || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.FIXED && event.wasClick)) {
                         this.stopEvent(event);
                         this.searchList.hidden = true;
                         // [Goalous Fix] original fix to support to insert mention html when selected mention item
