@@ -161,15 +161,16 @@ function localToRelativeCoordinates(ctx, element, coordinates) {
         }
     }
 }
-function getElValueExcludeHtml(nativeElement) {
+function getElValueExcludeHtml(nativeElement, iframe) {
     var selection = null;
     var range;
     nativeElement.focus();
-    selection = window.getSelection();
+    selection = getWindowSelection(iframe);
     range = selection.getRangeAt(0);
     var text = selection.anchorNode.data ? selection.anchorNode.data : '';
-    selection.modify('move', 'backward', 'lineboundary');
-    selection.modify('extend', 'forward', 'lineboundary');
+    // [Goalous fix] Selection doesn't support `modify` method on Edge/IE11.
+    // selection.modify('move', 'backward', 'lineboundary');
+    // selection.modify('extend', 'forward', 'lineboundary');
     // const html = document.createElement('div');
     // const len = selection.rangeCount;
     // for (let i = 0; i < len; ++i) {
