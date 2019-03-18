@@ -186,7 +186,7 @@ var MentionDirective = /** @class */ (function () {
         }
         // Fix bug: getValue gets all content but originally it is right to get only current row value except html
         var val = mention_utils_1.getValue(nativeElement);
-        val = mention_utils_1.getElValueExcludeHtml(nativeElement);
+        val = mention_utils_1.getElValueExcludeHtml(nativeElement, this.iframe);
         var pos = mention_utils_1.getCaretPosition(nativeElement, this.iframe);
         var charPressed = event.key;
         if (!charPressed) {

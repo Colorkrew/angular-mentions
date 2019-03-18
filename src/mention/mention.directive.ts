@@ -227,7 +227,7 @@ export class MentionDirective implements OnChanges {
 
     // Fix bug: getValue gets all content but originally it is right to get only current row value except html
     let val: string = getValue(nativeElement);
-    val = getElValueExcludeHtml(nativeElement);
+    val = getElValueExcludeHtml(nativeElement, this.iframe);
 
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;
