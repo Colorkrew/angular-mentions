@@ -196,10 +196,11 @@ export class MentionDirective implements OnChanges {
 
   @HostListener('keydown', ['$event'])
   onKeyDown(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
+    console.log('■keydown');
     if (this.disabledMention) {
       return;
     }
-
+    console.log({which: event.which, keyCode: event.keyCode});
     this.keyDownCode = event.which || event.keyCode;
     if (this.keyDownCode !== 229) {
       this.keyHandler(event, nativeElement);
@@ -208,10 +209,12 @@ export class MentionDirective implements OnChanges {
 
   @HostListener('keyup', ['$event'])
   onKeyUp(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
+    console.log('■keyup');
     if (this.disabledMention) {
       return;
     }
     const charCode = event.which || event.keyCode;
+    console.log({which: event.which, keyCode: event.keyCode});
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
     if (imeInputStatus === IME_INPUT_STATUS.FIXED) {
       this.keyHandler(event, nativeElement);
@@ -219,6 +222,7 @@ export class MentionDirective implements OnChanges {
   }
 
   keyHandler(event: any, nativeElement: HTMLInputElement, ) {
+    console.log('■keyHandler');
     const charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
     if (!event.wasClick) {
@@ -231,6 +235,7 @@ export class MentionDirective implements OnChanges {
 
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;
+    console.log({charPressed, pos, val, charCode, startPos: this.startPos});
     if (!charPressed) {
       if (!event.shiftKey && (charCode >= 65 && charCode <= 90)) {
         charPressed = String.fromCharCode(charCode + 32);
@@ -243,15 +248,19 @@ export class MentionDirective implements OnChanges {
         // http://stackoverflow.com/questions/2220196/how-to-decode-character-pressed-from-jquerys-keydowns-event-handler?lq=1
         charPressed = String.fromCharCode(charCode);
       }
+      console.log('--- if !charPressed');
+      console.log({charPressed});
     }
     // console.log({val, pos, charPressed, startPos: this.startPos});
 
     if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
+      console.log('--- if charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden');
       this.resetSearchList();
       return;
     }
 
     if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
+      console.log('--- if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos)');
       // put caret back in position prior to contenteditable menu click
       pos = this.startNode.length;
       setCaretPosition(this.startNode, pos, this.iframe);
@@ -260,6 +269,7 @@ export class MentionDirective implements OnChanges {
 
     const config = this.triggerChars[charPressed];
     if (config) {
+      console.log('--- triggerChara entered');
       this.activeConfig = config;
       this.startPos = pos;
       this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
@@ -269,7 +279,9 @@ export class MentionDirective implements OnChanges {
       // Comment outt prevent to show search list when just input triggerChara
       // this.updateSearchList();
       // this.activeConfig.items = [];
+      console.log('--- triggerChara entered');
     } else if (this.startPos >= 0 && !this.stopSearch) {
+      console.log('--- this.startPos >= 0 && !this.stopSearch');
       if (pos <= this.startPos) {
         this.searchList.hidden = true;
       }
@@ -280,6 +292,7 @@ export class MentionDirective implements OnChanges {
         !event.ctrlKey &&
         pos > this.startPos
       ) {
+        console.log('--- if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos)');
         if (event.keyCode === KEY_SPACE) {
           this.startPos = -1;
         }
@@ -295,6 +308,7 @@ export class MentionDirective implements OnChanges {
             || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)
             || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.FIXED && event.wasClick)
           ) {
+            console.log('--- this.startPos >= 0 && !this.stopSearch');
             this.stopEvent(event);
             this.searchList.hidden = true;
 
@@ -350,6 +364,7 @@ export class MentionDirective implements OnChanges {
           return false;
         }
         else {
+          console.log('--- search start!');
           let mention = val.substring(this.startPos + 1, pos);
 
           if (event.keyCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) {

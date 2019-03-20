@@ -159,9 +159,11 @@ var MentionDirective = /** @class */ (function () {
     };
     MentionDirective.prototype.onKeyDown = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
+        console.log('■keydown');
         if (this.disabledMention) {
             return;
         }
+        console.log({ which: event.which, keyCode: event.keyCode });
         this.keyDownCode = event.which || event.keyCode;
         if (this.keyDownCode !== 229) {
             this.keyHandler(event, nativeElement);
@@ -169,16 +171,19 @@ var MentionDirective = /** @class */ (function () {
     };
     MentionDirective.prototype.onKeyUp = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
+        console.log('■keyup');
         if (this.disabledMention) {
             return;
         }
         var charCode = event.which || event.keyCode;
+        console.log({ which: event.which, keyCode: event.keyCode });
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
         if (imeInputStatus === IME_INPUT_STATUS.FIXED) {
             this.keyHandler(event, nativeElement);
         }
     };
     MentionDirective.prototype.keyHandler = function (event, nativeElement) {
+        console.log('■keyHandler');
         var charCode = event.which || event.keyCode;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
         if (!event.wasClick) {
@@ -189,6 +194,7 @@ var MentionDirective = /** @class */ (function () {
         val = mention_utils_1.getElValueExcludeHtml(nativeElement, this.iframe);
         var pos = mention_utils_1.getCaretPosition(nativeElement, this.iframe);
         var charPressed = event.key;
+        console.log({ charPressed: charPressed, pos: pos, val: val, charCode: charCode, startPos: this.startPos });
         if (!charPressed) {
             if (!event.shiftKey && (charCode >= 65 && charCode <= 90)) {
                 charPressed = String.fromCharCode(charCode + 32);
@@ -201,13 +207,17 @@ var MentionDirective = /** @class */ (function () {
                 // http://stackoverflow.com/questions/2220196/how-to-decode-character-pressed-from-jquerys-keydowns-event-handler?lq=1
                 charPressed = String.fromCharCode(charCode);
             }
+            console.log('--- if !charPressed');
+            console.log({ charPressed: charPressed });
         }
         // console.log({val, pos, charPressed, startPos: this.startPos});
         if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
+            console.log('--- if charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden');
             this.resetSearchList();
             return;
         }
         if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
+            console.log('--- if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos)');
             // put caret back in position prior to contenteditable menu click
             pos = this.startNode.length;
             mention_utils_1.setCaretPosition(this.startNode, pos, this.iframe);
@@ -215,6 +225,7 @@ var MentionDirective = /** @class */ (function () {
         // console.log("keyHandler", this.startPos, pos, val, charPressed, event);
         var config = this.triggerChars[charPressed];
         if (config) {
+            console.log('--- triggerChara entered');
             this.activeConfig = config;
             this.startPos = pos;
             this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
@@ -224,8 +235,10 @@ var MentionDirective = /** @class */ (function () {
             // Comment outt prevent to show search list when just input triggerChara
             // this.updateSearchList();
             // this.activeConfig.items = [];
+            console.log('--- triggerChara entered');
         }
         else if (this.startPos >= 0 && !this.stopSearch) {
+            console.log('--- this.startPos >= 0 && !this.stopSearch');
             if (pos <= this.startPos) {
                 this.searchList.hidden = true;
             }
@@ -235,6 +248,7 @@ var MentionDirective = /** @class */ (function () {
                 !event.altKey &&
                 !event.ctrlKey &&
                 pos > this.startPos) {
+                console.log('--- if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos)');
                 if (event.keyCode === KEY_SPACE) {
                     this.startPos = -1;
                 }
@@ -249,6 +263,7 @@ var MentionDirective = /** @class */ (function () {
                     if (event.keyCode === KEY_TAB
                         || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)
                         || (event.keyCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.FIXED && event.wasClick)) {
+                        console.log('--- this.startPos >= 0 && !this.stopSearch');
                         this.stopEvent(event);
                         this.searchList.hidden = true;
                         // [Goalous Fix] original fix to support to insert mention html when selected mention item
@@ -298,6 +313,7 @@ var MentionDirective = /** @class */ (function () {
                     return false;
                 }
                 else {
+                    console.log('--- search start!');
                     var mention = val.substring(this.startPos + 1, pos);
                     if (event.keyCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) {
                         mention += charPressed;
