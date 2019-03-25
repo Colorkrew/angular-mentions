@@ -32,7 +32,11 @@ export declare class MentionDirective implements OnChanges {
     iframe: any;
     keyDownCode: number;
     isComposing: boolean;
+    isAndroid: boolean;
+    isFirefox: boolean;
+    isAttachedEventForRemoveMention: boolean;
     constructor(_element: ElementRef, _componentResolver: ComponentFactoryResolver, _viewContainerRef: ViewContainerRef, appRef: ApplicationRef, injector: Injector);
+    addEventForRemoveMention(): void;
     ngOnChanges(changes: SimpleChanges): void;
     private updateConfig;
     private addConfig;
