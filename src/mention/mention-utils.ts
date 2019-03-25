@@ -75,7 +75,7 @@ export function getCaretPosition(el: HTMLInputElement, iframe: HTMLIFrameElement
   }
   else {
     var selObj = getWindowSelection(iframe); //window.getSelection();
-    if (selObj.rangeCount>0) {
+    if (selObj.rangeCount > 0) {
       var selRange = selObj.getRangeAt(0);
       var position = selRange.startOffset;
       return position;
@@ -203,4 +203,15 @@ export function getElValueExcludeHtml(nativeElement: HTMLInputElement, iframe: H
   text = text.replace(/<span\b[^<]*(?:(?!<\/span>)<[^<]*)*<\/span>/ig, '');
   text = text.replace(/&nbsp;/ig, ' ');
   return text;
+}
+
+export function prev(node, selector = null) {
+  if (selector && document.querySelector(selector) !== node.previousElementSibling) {
+    return null;
+  }
+
+  return node.previousElementSibling;
+}
+export function isElement(element) {
+  return element instanceof Element || element instanceof HTMLDocument;
 }

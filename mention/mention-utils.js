@@ -185,3 +185,15 @@ function getElValueExcludeHtml(nativeElement, iframe) {
     return text;
 }
 exports.getElValueExcludeHtml = getElValueExcludeHtml;
+function prev(node, selector) {
+    if (selector === void 0) { selector = null; }
+    if (selector && document.querySelector(selector) !== node.previousElementSibling) {
+        return null;
+    }
+    return node.previousElementSibling;
+}
+exports.prev = prev;
+function isElement(element) {
+    return element instanceof Element || element instanceof HTMLDocument;
+}
+exports.isElement = isElement;

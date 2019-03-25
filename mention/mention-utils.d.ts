@@ -12,3 +12,5 @@ export declare function getContentEditableCaretCoords(ctx: {
     top: number;
 };
 export declare function getElValueExcludeHtml(nativeElement: HTMLInputElement, iframe: HTMLIFrameElement): string;
+export declare function prev(node: any, selector?: any): any;
+export declare function isElement(element: any): boolean;
