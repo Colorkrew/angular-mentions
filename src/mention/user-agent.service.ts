@@ -1,5 +1,6 @@
 import * as MobileDetect from 'mobile-detect';
 import { BrowserType } from './browser-type';
+import { Injectable } from '@angular/core';
 
 export enum Browser {
   IE
@@ -9,6 +10,7 @@ const userAgentMapping = {
   [Browser.IE]: /trident\/7.0;.*rv:11/i
 };
 
+@Injectable()
 export class UserAgentService {
   private mobileDetect: MobileDetect;
   public ua = '';

@@ -12,7 +12,7 @@ import { UserAgentService } from './user-agent.service';
     ],
     exports: [
         MentionDirective,
-        MentionListComponent
+        MentionListComponent,
     ],
     entryComponents: [
         MentionListComponent

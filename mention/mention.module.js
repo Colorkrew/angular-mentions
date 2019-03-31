@@ -29,7 +29,7 @@ var MentionModule = /** @class */ (function () {
             ],
             exports: [
                 mention_directive_1.MentionDirective,
-                mention_list_component_1.MentionListComponent
+                mention_list_component_1.MentionListComponent,
             ],
             entryComponents: [
                 mention_list_component_1.MentionListComponent
