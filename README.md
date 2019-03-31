@@ -14,6 +14,20 @@ To install and start the demo application:
     npm install
     ng serve
 
+
+## Customize for Goalous
+This repository is forked from [Angular Mentions](http://dmacfarlane.github.io/angular-mentions/) for Goalous.
+
+### Fixing flow
+1. After fixed, run command `npm run dist` and created assets
+2. Git push on this repo
+3. On goalous-front-end repository, `npm uninstall angular-mentions && npm i -S https://github.com/IsaoCorp/angular-mentions.git\#{revision|tag|branch}`
+4. Git push on goalous-front-end repo
+
+**[Caution]**
+If refer same branch and updated revision on goalous-front-end repo, unfortunately it will not be refrected on new Goalous after build by CodeBuild 
+To refrect, it might be need to change branch or tag.
+
 ### Usage
 
 Add the package as a dependency to your project using:
