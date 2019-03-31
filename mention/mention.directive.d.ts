@@ -2,6 +2,7 @@ import { ElementRef, ComponentFactoryResolver, ViewContainerRef, TemplateRef, Ap
 import { EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { MentionConfig } from './mention-config';
 import { MentionListComponent } from './mention-list.component';
+import { UserAgentService } from './user-agent.service';
 /**
  * Angular 2 Mentions.
  * https://github.com/dmacfarlane/angular-mentions
@@ -14,6 +15,7 @@ export declare class MentionDirective implements OnChanges {
     private _viewContainerRef;
     private appRef;
     private injector;
+    private uaService;
     disabledMention: boolean;
     private mentionItems;
     mention: any[];
@@ -34,8 +36,11 @@ export declare class MentionDirective implements OnChanges {
     isComposing: boolean;
     isAndroid: boolean;
     isFirefox: boolean;
+    isPcSafari: boolean;
+    inComposition: boolean;
+    isKeyHandlerDone: boolean;
     isAttachedEventForRemoveMention: boolean;
-    constructor(_element: ElementRef, _componentResolver: ComponentFactoryResolver, _viewContainerRef: ViewContainerRef, appRef: ApplicationRef, injector: Injector);
+    constructor(_element: ElementRef, _componentResolver: ComponentFactoryResolver, _viewContainerRef: ViewContainerRef, appRef: ApplicationRef, injector: Injector, uaService: UserAgentService);
     addEventForRemoveMention(): void;
     ngOnChanges(changes: SimpleChanges): void;
     private updateConfig;
@@ -43,7 +48,7 @@ export declare class MentionDirective implements OnChanges {
     setIframe(iframe: HTMLIFrameElement): void;
     stopEvent(event: any): void;
     blurHandler(event: any): void;
-    getImeInputStatus(keyDownCode: number, keyUpCode: number): number;
+    getImeInputStatus(keyDownCode: number, keyUpCode: number, event: any): number;
     onKeyDown(event: any, nativeElement?: HTMLInputElement): void;
     onKeyUp(event: any, nativeElement?: HTMLInputElement): void;
     keyHandler(event: any, nativeElement: HTMLInputElement): boolean;

@@ -4,6 +4,7 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import { MentionDirective } from './mention.directive';
 import { MentionListComponent } from './mention-list.component';
 import 'hammerjs';
+import { UserAgentService } from './user-agent.service';
 
 @NgModule({
     imports: [
@@ -19,7 +20,8 @@ import 'hammerjs';
     declarations: [
         MentionDirective,
         MentionListComponent
-    ]
+    ],
+    providers: [UserAgentService]
 })
 export class MentionModule {
     static forRoot(): ModuleWithProviders {
