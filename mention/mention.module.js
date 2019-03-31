@@ -11,6 +11,7 @@ var core_1 = require("@angular/core");
 var mention_directive_1 = require("./mention.directive");
 var mention_list_component_1 = require("./mention-list.component");
 require("hammerjs");
+var user_agent_service_1 = require("./user-agent.service");
 var MentionModule = /** @class */ (function () {
     function MentionModule() {
     }
@@ -28,7 +29,7 @@ var MentionModule = /** @class */ (function () {
             ],
             exports: [
                 mention_directive_1.MentionDirective,
-                mention_list_component_1.MentionListComponent
+                mention_list_component_1.MentionListComponent,
             ],
             entryComponents: [
                 mention_list_component_1.MentionListComponent
@@ -36,7 +37,8 @@ var MentionModule = /** @class */ (function () {
             declarations: [
                 mention_directive_1.MentionDirective,
                 mention_list_component_1.MentionListComponent
-            ]
+            ],
+            providers: [user_agent_service_1.UserAgentService]
         })
     ], MentionModule);
     return MentionModule;

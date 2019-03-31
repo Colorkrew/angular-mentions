@@ -13,6 +13,8 @@ var core_1 = require("@angular/core");
 var core_2 = require("@angular/core");
 var mention_list_component_1 = require("./mention-list.component");
 var mention_utils_1 = require("./mention-utils");
+var user_agent_service_1 = require("./user-agent.service");
+var browser_type_1 = require("./browser-type");
 var KEY_BACKSPACE = 8;
 var KEY_TAB = 9;
 var KEY_ENTER = 13;
@@ -36,13 +38,14 @@ var IME_INPUT_STATUS = Object.freeze({
  * Copyright (c) 2017 Dan MacFarlane
  */
 var MentionDirective = /** @class */ (function () {
-    function MentionDirective(_element, _componentResolver, _viewContainerRef, appRef, injector) {
+    function MentionDirective(_element, _componentResolver, _viewContainerRef, appRef, injector, uaService) {
         var _this = this;
         this._element = _element;
         this._componentResolver = _componentResolver;
         this._viewContainerRef = _viewContainerRef;
         this.appRef = appRef;
         this.injector = injector;
+        this.uaService = uaService;
         this.disabledMention = false;
         // the provided configuration object
         this.mentionConfig = { items: [] };
@@ -66,14 +69,16 @@ var MentionDirective = /** @class */ (function () {
         this.isComposing = false;
         this.isAndroid = false;
         this.isFirefox = false;
+        this.isPcSafari = false;
+        this.inComposition = false;
+        this.isKeyHandlerDone = false;
         this.isAttachedEventForRemoveMention = false;
-        var ua = navigator.userAgent;
-        if (!!ua.match(/Android/i)) {
-            this.isAndroid = true;
-        }
-        else if (ua.toLowerCase().indexOf('firefox') !== -1) {
-            this.isFirefox = true;
-        }
+        // console.log(this.uaService.browserType);
+        this.isPcSafari = this.uaService.browserType === browser_type_1.BrowserType.SAFARI && this.uaService.isPcDevice();
+        this.isAndroid = this.uaService.isAndroid();
+        // console.log('isPc:' + this.uaService.isPcDevice());
+        // console.log('isAndroid:' + this.isAndroid);
+        // console.log('isPcSafari:' + this.isPcSafari);
     }
     Object.defineProperty(MentionDirective.prototype, "mention", {
         set: function (items) {
@@ -186,7 +191,28 @@ var MentionDirective = /** @class */ (function () {
             this.searchList.hidden = true;
         }
     };
-    MentionDirective.prototype.getImeInputStatus = function (keyDownCode, keyUpCode) {
+    // @HostListener('compositionstart ', ['$event'])
+    // @HostListener('compositionupdate ', ['$event'])
+    // onComposition() {
+    //   // this.inCompositionEnd = false;
+    //   this.inComposition = true;
+    //   this.imeInputStatus = IME_INPUT_STATUS.INPUTTING;
+    // }
+    // @HostListener('compositionend', ['$event'])
+    // onCompositionEnd() {
+    //   this.inComposition = false;
+    //   this.imeInputStatus = IME_INPUT_STATUS.FIXED;
+    // }
+    MentionDirective.prototype.getImeInputStatus = function (keyDownCode, keyUpCode, event) {
+        if (this.isPcSafari) {
+            if (event.isComposing) {
+                return IME_INPUT_STATUS.INPUTTING;
+            }
+            else if (keyUpCode === KEY_ENTER) {
+                return IME_INPUT_STATUS.FIXED;
+            }
+            return IME_INPUT_STATUS.NONE;
+        }
         // [Caution ]On Android, Keycode value is return as 229 for all keys
         if (this.isAndroid) {
             return IME_INPUT_STATUS.NONE;
@@ -199,32 +225,49 @@ var MentionDirective = /** @class */ (function () {
     MentionDirective.prototype.onKeyDown = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         // console.log('■keydown');
+        // console.log({which: event.which, keyCode: event.keyCode, char: event.key});
         if (this.disabledMention) {
             return;
         }
-        // console.log({which: event.which, keyCode: event.keyCode, char: event.key});
+        // console.log({isComposing: event.isComposing});
         this.keyDownCode = event.which || event.keyCode;
-        if (this.keyDownCode !== 229 || this.isAndroid) {
+        if (this.isPcSafari && !event.isComposing) {
+            this.isKeyHandlerDone = true;
+            this.keyHandler(event, nativeElement);
+        }
+        else if (this.keyDownCode !== 229 || this.isAndroid) {
+            this.isKeyHandlerDone = true;
             this.keyHandler(event, nativeElement);
         }
     };
     MentionDirective.prototype.onKeyUp = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         // console.log('■keyup');
+        // console.log({which: event.which, keyCode: event.keyCode, char: event.key});
         if (this.disabledMention) {
             return;
         }
+        if (this.isKeyHandlerDone) {
+            this.isKeyHandlerDone = false;
+            return;
+        }
+        // console.log({isComposing: event.isComposing});
+        if (event.isComposing && this.isPcSafari && this.uaService.isPcDevice()) {
+            this.isKeyHandlerDone = false;
+            return;
+        }
         var charCode = event.which || event.keyCode;
-        // console.log({which: event.which, keyCode: event.keyCode, char: event.key});
-        var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
-        if (imeInputStatus === IME_INPUT_STATUS.FIXED || event.shiftKey) {
+        var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
+        // console.log({imeInputStatus});
+        if (imeInputStatus === IME_INPUT_STATUS.FIXED || event.shiftKey || this.isPcSafari) {
             this.keyHandler(event, nativeElement);
         }
+        this.isKeyHandlerDone = false;
     };
     MentionDirective.prototype.keyHandler = function (event, nativeElement) {
         // console.log('■keyHandler');
         var charCode = event.which || event.keyCode;
-        var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode);
+        var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
         if (!event.wasClick) {
             this.isComposing = event.isComposing;
         }
@@ -236,7 +279,6 @@ var MentionDirective = /** @class */ (function () {
         // console.log({charPressed, pos, val, charCode, startPos: this.startPos});
         if (event.shiftKey && charCode === KEY_2) {
             charPressed = '@';
-            pos--;
             // console.log('--- enter @ in us keyboard');
         }
         if (!charPressed) {
@@ -274,12 +316,31 @@ var MentionDirective = /** @class */ (function () {
             pos = this.startNode.length;
             mention_utils_1.setCaretPosition(this.startNode, pos, this.iframe);
         }
-        // console.log("keyHandler", this.startPos, pos, val, charPressed, event);
+        // console.log('keyHandler', this.startPos, pos, val, charPressed, event);
         var config = this.triggerChars[charPressed];
         if (config && (!this.isAndroid || (this.isAndroid && !this.isComposing))) {
             // console.log('--- triggerChara entered');
             this.activeConfig = config;
-            this.startPos = this.isAndroid ? pos - 1 : pos;
+            this.startPos = pos;
+            var tmpChara = val.substring(this.startPos - 1, this.startPos);
+            // console.log({tmpChara});
+            if (tmpChara.length > 0) {
+                if (tmpChara === charPressed) {
+                    this.startPos--;
+                }
+            }
+            else {
+                tmpChara = val.substring(this.startPos + 1, this.startPos + 2);
+                // console.log('val.substring(this.startPos + 1, this.startPos + 2)');
+                // console.log({tmpChara});
+                if (tmpChara === charPressed) {
+                    this.startPos++;
+                }
+            }
+            if (this.startPos < 0) {
+                // console.log('this.startPos < 0 set this.startPos = 0');
+                this.startPos = 0;
+            }
             this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
             this.stopSearch = false;
             this.searchString = '';
@@ -313,6 +374,7 @@ var MentionDirective = /** @class */ (function () {
                 }
                 else if (!this.searchList.hidden) {
                     if (charCode === KEY_TAB
+                        || (charCode === KEY_ENTER && this.isPcSafari)
                         || (charCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)
                         || (charCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.FIXED && event.wasClick)) {
                         // console.log('--- this.startPos >= 0 && !this.stopSearch');
@@ -369,8 +431,10 @@ var MentionDirective = /** @class */ (function () {
                 else if (!this.stopSearch) {
                     // console.log('--- search start!');
                     var mention = val.substring(this.startPos + 1, pos);
-                    if (charCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE && !this.isAndroid) {
+                    // console.log({mention});
+                    if (!this.isPcSafari && (charCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) && !this.isAndroid) {
                         mention += charPressed;
+                        // console.log('add charPressed:' + mention);
                     }
                     if (mention.length > 0) {
                         this.searchString = mention;
@@ -522,7 +586,8 @@ var MentionDirective = /** @class */ (function () {
             core_1.ComponentFactoryResolver,
             core_1.ViewContainerRef,
             core_1.ApplicationRef,
-            core_1.Injector])
+            core_1.Injector,
+            user_agent_service_1.UserAgentService])
     ], MentionDirective);
     return MentionDirective;
 }());
