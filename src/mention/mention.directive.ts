@@ -373,10 +373,24 @@ export class MentionDirective implements OnChanges {
       console.log('--- triggerChara entered');
       this.activeConfig = config;
       this.startPos = pos;
-      const tmpChara = val.substring(this.startPos - 1, this.startPos);
+      let tmpChara = val.substring(this.startPos - 1, this.startPos);
       console.log({tmpChara});
-      if (tmpChara === charPressed) {
-        this.startPos--;
+      if (tmpChara.length > 0) {
+        if (tmpChara === charPressed) {
+          this.startPos--;
+        }
+      } else {
+        tmpChara = val.substring(this.startPos + 1, this.startPos + 2);
+        console.log('val.substring(this.startPos + 1, this.startPos + 2)');
+        console.log({tmpChara});
+        if (tmpChara === charPressed) {
+          this.startPos++;
+        }
+      }
+
+      if (this.startPos < 0) {
+        console.log('this.startPos < 0 set this.startPos = 0');
+        this.startPos = 0;
       }
 
       this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
