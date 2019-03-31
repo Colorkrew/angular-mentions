@@ -279,7 +279,6 @@ var MentionDirective = /** @class */ (function () {
         console.log({ charPressed: charPressed, pos: pos, val: val, charCode: charCode, startPos: this.startPos });
         if (event.shiftKey && charCode === KEY_2) {
             charPressed = '@';
-            pos--;
             console.log('--- enter @ in us keyboard');
         }
         if (!charPressed) {
@@ -322,7 +321,12 @@ var MentionDirective = /** @class */ (function () {
         if (config && (!this.isAndroid || (this.isAndroid && !this.isComposing))) {
             console.log('--- triggerChara entered');
             this.activeConfig = config;
-            this.startPos = this.isAndroid || this.isPcSafari ? pos - 1 : pos;
+            this.startPos = pos;
+            var tmpChara = val.substring(this.startPos - 1, this.startPos);
+            console.log({ tmpChara: tmpChara });
+            if (tmpChara === charPressed) {
+                this.startPos--;
+            }
             this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
             this.stopSearch = false;
             this.searchString = '';

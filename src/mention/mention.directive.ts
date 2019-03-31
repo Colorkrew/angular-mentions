@@ -326,7 +326,6 @@ export class MentionDirective implements OnChanges {
     console.log({charPressed, pos, val, charCode, startPos: this.startPos});
     if (event.shiftKey && charCode === KEY_2) {
       charPressed = '@';
-      pos--;
       console.log('--- enter @ in us keyboard');
     }
     if (!charPressed) {
@@ -373,7 +372,13 @@ export class MentionDirective implements OnChanges {
     if (config && (!this.isAndroid || (this.isAndroid && !this.isComposing))) {
       console.log('--- triggerChara entered');
       this.activeConfig = config;
-      this.startPos = this.isAndroid || this.isPcSafari ? pos - 1 : pos;
+      this.startPos = pos;
+      const tmpChara = val.substring(this.startPos - 1, this.startPos);
+      console.log({tmpChara});
+      if (tmpChara === charPressed) {
+        this.startPos--;
+      }
+
       this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
       this.stopSearch = false;
       this.searchString = '';
