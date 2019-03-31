@@ -109,12 +109,12 @@ export class MentionDirective implements OnChanges {
     private injector: Injector,
     private uaService: UserAgentService
   ) {
-    console.log(this.uaService.browserType);
+    // console.log(this.uaService.browserType);
     this.isPcSafari = this.uaService.browserType === BrowserType.SAFARI && this.uaService.isPcDevice();
     this.isAndroid = this.uaService.isAndroid();
-    console.log('isPc:' + this.uaService.isPcDevice());
-    console.log('isAndroid:' + this.isAndroid);
-    console.log('isPcSafari:' + this.isPcSafari);
+    // console.log('isPc:' + this.uaService.isPcDevice());
+    // console.log('isAndroid:' + this.isAndroid);
+    // console.log('isPcSafari:' + this.isPcSafari);
   }
 
   addEventForRemoveMention() {
@@ -146,7 +146,7 @@ export class MentionDirective implements OnChanges {
 
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('config change', changes);
+    // console.log('config change', changes);
     if (changes['mention'] || changes['mentionConfig']) {
       this.updateConfig();
     }
@@ -266,12 +266,12 @@ export class MentionDirective implements OnChanges {
 
   @HostListener('keydown', ['$event'])
   onKeyDown(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
-    console.log('■keydown');
-    console.log({which: event.which, keyCode: event.keyCode, char: event.key});
+    // console.log('■keydown');
+    // console.log({which: event.which, keyCode: event.keyCode, char: event.key});
     if (this.disabledMention) {
       return;
     }
-    console.log({isComposing: event.isComposing});
+    // console.log({isComposing: event.isComposing});
     this.keyDownCode = event.which || event.keyCode;
     if (this.isPcSafari && !event.isComposing) {
       this.isKeyHandlerDone = true;
@@ -284,8 +284,8 @@ export class MentionDirective implements OnChanges {
 
   @HostListener('keyup', ['$event'])
   onKeyUp(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
-    console.log('■keyup');
-    console.log({which: event.which, keyCode: event.keyCode, char: event.key});
+    // console.log('■keyup');
+    // console.log({which: event.which, keyCode: event.keyCode, char: event.key});
     if (this.disabledMention) {
       return;
     }
@@ -294,7 +294,7 @@ export class MentionDirective implements OnChanges {
       return;
     }
 
-    console.log({isComposing: event.isComposing});
+    // console.log({isComposing: event.isComposing});
     if (event.isComposing && this.isPcSafari && this.uaService.isPcDevice()) {
       this.isKeyHandlerDone = false;
       return;
@@ -302,7 +302,7 @@ export class MentionDirective implements OnChanges {
 
     const charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
-    console.log({imeInputStatus});
+    // console.log({imeInputStatus});
     if (imeInputStatus === IME_INPUT_STATUS.FIXED || event.shiftKey || this.isPcSafari) {
       this.keyHandler(event, nativeElement);
     }
@@ -310,7 +310,7 @@ export class MentionDirective implements OnChanges {
   }
 
   keyHandler(event: any, nativeElement: HTMLInputElement, ) {
-    console.log('■keyHandler');
+    // console.log('■keyHandler');
     let charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
     if (!event.wasClick) {
@@ -323,10 +323,10 @@ export class MentionDirective implements OnChanges {
 
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;
-    console.log({charPressed, pos, val, charCode, startPos: this.startPos});
+    // console.log({charPressed, pos, val, charCode, startPos: this.startPos});
     if (event.shiftKey && charCode === KEY_2) {
       charPressed = '@';
-      console.log('--- enter @ in us keyboard');
+      // console.log('--- enter @ in us keyboard');
     }
     if (!charPressed) {
       if (!event.shiftKey && (charCode >= 65 && charCode <= 90)) {
@@ -337,8 +337,8 @@ export class MentionDirective implements OnChanges {
         // http://stackoverflow.com/questions/2220196/how-to-decode-character-pressed-from-jquerys-keydowns-event-handler?lq=1
         charPressed = String.fromCharCode(charCode);
       }
-      console.log('--- if !charPressed');
-      console.log({charPressed});
+      // console.log('--- if !charPressed');
+      // console.log({charPressed});
     } else if (this.isAndroid) {
       // [Caution ]On Android, Keycode value is return as 229 for all keys
       // https://stackoverflow.com/questions/39035374/keycode-value-is-return-as-229-for-all-keys
@@ -347,49 +347,49 @@ export class MentionDirective implements OnChanges {
         const lastIdx = mentionRangeVal.length - 1;
         charCode = mentionRangeVal.charCodeAt(lastIdx);
         charPressed = mentionRangeVal.substr(lastIdx);
-        console.log({charCode, charPressed, val, mentionRangeVal, isComposing: this.isComposing});
+        // console.log({charCode, charPressed, val, mentionRangeVal, isComposing: this.isComposing});
       }
     }
 
-    console.log({val, pos, charPressed, startPos: this.startPos});
+    // console.log({val, pos, charPressed, startPos: this.startPos});
 
     if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
-      console.log('--- if charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden');
+      // console.log('--- if charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden');
       this.resetSearchList();
       return;
     }
 
 
     if (charCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
-      console.log('--- if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos)');
+      // console.log('--- if (event.keyCode === KEY_ENTER && event.wasClick && pos < this.startPos)');
       // put caret back in position prior to contenteditable menu click
       pos = this.startNode.length;
       setCaretPosition(this.startNode, pos, this.iframe);
     }
-    console.log('keyHandler', this.startPos, pos, val, charPressed, event);
+    // console.log('keyHandler', this.startPos, pos, val, charPressed, event);
 
     const config = this.triggerChars[charPressed];
     if (config && (!this.isAndroid || (this.isAndroid && !this.isComposing))) {
-      console.log('--- triggerChara entered');
+      // console.log('--- triggerChara entered');
       this.activeConfig = config;
       this.startPos = pos;
       let tmpChara = val.substring(this.startPos - 1, this.startPos);
-      console.log({tmpChara});
+      // console.log({tmpChara});
       if (tmpChara.length > 0) {
         if (tmpChara === charPressed) {
           this.startPos--;
         }
       } else {
         tmpChara = val.substring(this.startPos + 1, this.startPos + 2);
-        console.log('val.substring(this.startPos + 1, this.startPos + 2)');
-        console.log({tmpChara});
+        // console.log('val.substring(this.startPos + 1, this.startPos + 2)');
+        // console.log({tmpChara});
         if (tmpChara === charPressed) {
           this.startPos++;
         }
       }
 
       if (this.startPos < 0) {
-        console.log('this.startPos < 0 set this.startPos = 0');
+        // console.log('this.startPos < 0 set this.startPos = 0');
         this.startPos = 0;
       }
 
@@ -400,9 +400,9 @@ export class MentionDirective implements OnChanges {
       // Comment outt prevent to show search list when just input triggerChara
       // this.updateSearchList();
       // this.activeConfig.items = [];
-      console.log('--- triggerChara entered');
+      // console.log('--- triggerChara entered');
     } else if (this.startPos >= 0 && !this.stopSearch) {
-      console.log('--- this.startPos >= 0 && !this.stopSearch');
+      // console.log('--- this.startPos >= 0 && !this.stopSearch');
       if (pos <= this.startPos) {
         this.searchList.hidden = true;
       }
@@ -413,7 +413,7 @@ export class MentionDirective implements OnChanges {
         !event.ctrlKey &&
         pos > this.startPos
       ) {
-        console.log('--- if (charCode === KEY_ENTER && event.wasClick && pos < this.startPos)');
+        // console.log('--- if (charCode === KEY_ENTER && event.wasClick && pos < this.startPos)');
         if (charCode === KEY_SPACE) {
           this.startPos = -1;
         }
@@ -430,7 +430,7 @@ export class MentionDirective implements OnChanges {
             || (charCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)
             || (charCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.FIXED && event.wasClick)
           ) {
-            console.log('--- this.startPos >= 0 && !this.stopSearch');
+            // console.log('--- this.startPos >= 0 && !this.stopSearch');
             this.stopEvent(event);
             this.searchList.hidden = true;
 
@@ -486,12 +486,12 @@ export class MentionDirective implements OnChanges {
           this.stopEvent(event);
           return false;
         } else if (!this.stopSearch) {
-          console.log('--- search start!');
+          // console.log('--- search start!');
           let mention = val.substring(this.startPos + 1, pos);
-console.log({mention});
+// console.log({mention});
           if (!this.isPcSafari && (charCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) && !this.isAndroid) {
             mention += charPressed;
-console.log('add charPressed:' + mention);
+// console.log('add charPressed:' + mention);
           }
 
           if (mention.length > 0) {
