@@ -191,18 +191,6 @@ var MentionDirective = /** @class */ (function () {
             this.searchList.hidden = true;
         }
     };
-    // @HostListener('compositionstart ', ['$event'])
-    // @HostListener('compositionupdate ', ['$event'])
-    // onComposition() {
-    //   // this.inCompositionEnd = false;
-    //   this.inComposition = true;
-    //   this.imeInputStatus = IME_INPUT_STATUS.INPUTTING;
-    // }
-    // @HostListener('compositionend', ['$event'])
-    // onCompositionEnd() {
-    //   this.inComposition = false;
-    //   this.imeInputStatus = IME_INPUT_STATUS.FIXED;
-    // }
     MentionDirective.prototype.getImeInputStatus = function (keyDownCode, keyUpCode, event) {
         if (this.isPcSafari) {
             if (event.isComposing) {
@@ -229,15 +217,20 @@ var MentionDirective = /** @class */ (function () {
         if (this.disabledMention) {
             return;
         }
-        console.log({ isComposing: event.isComposing });
         this.keyDownCode = event.which || event.keyCode;
-        if (this.isPcSafari && !event.isComposing) {
-            this.isKeyHandlerDone = true;
-            this.keyHandler(event, nativeElement);
+        // Enter key on Windows
+        var isComposing = event.isComposing;
+        if (event.key === 'Process') {
+            isComposing = false;
         }
-        else if (this.keyDownCode !== 229 || this.isAndroid) {
+        console.log({ isComposing: isComposing });
+        if (this.isPcSafari && !isComposing) {
             this.isKeyHandlerDone = true;
-            this.keyHandler(event, nativeElement);
+            this.keyHandler(event, nativeElement, isComposing);
+        }
+        else if ((this.keyDownCode !== 229 || event.key === 'Process') || this.isAndroid) {
+            this.isKeyHandlerDone = true;
+            this.keyHandler(event, nativeElement, isComposing);
         }
     };
     MentionDirective.prototype.onKeyUp = function (event, nativeElement) {
@@ -253,27 +246,29 @@ var MentionDirective = /** @class */ (function () {
         }
         console.log({ isComposing: event.isComposing });
         if (event.isComposing && this.isPcSafari && this.uaService.isPcDevice()) {
+            console.log('event.isComposing && this.isPcSafari && this.uaService.isPcDevice()');
             this.isKeyHandlerDone = false;
             return;
         }
         var charCode = event.which || event.keyCode;
+        var isComposing = event.isComposing;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
         console.log({ imeInputStatus: imeInputStatus });
         if (imeInputStatus === IME_INPUT_STATUS.FIXED || event.shiftKey || this.isPcSafari) {
-            this.keyHandler(event, nativeElement);
+            this.keyHandler(event, nativeElement, isComposing);
         }
         this.isKeyHandlerDone = false;
     };
-    MentionDirective.prototype.keyHandler = function (event, nativeElement) {
+    MentionDirective.prototype.keyHandler = function (event, nativeElement, isComposing) {
+        if (isComposing === void 0) { isComposing = false; }
         console.log('■keyHandler');
         var charCode = event.which || event.keyCode;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
         if (!event.wasClick) {
-            this.isComposing = event.isComposing;
+            this.isComposing = isComposing;
         }
         // Fix bug: getValue gets all content but originally it is right to get only current row value except html
-        var val = mention_utils_1.getValue(nativeElement);
-        val = mention_utils_1.getElValueExcludeHtml(nativeElement, this.iframe);
+        var val = mention_utils_1.getElValueExcludeHtml(nativeElement, this.iframe);
         var pos = mention_utils_1.getCaretPosition(nativeElement, this.iframe);
         var charPressed = event.key;
         console.log({ charPressed: charPressed, pos: pos, val: val, charCode: charCode, startPos: this.startPos });

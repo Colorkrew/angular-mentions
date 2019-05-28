@@ -231,19 +231,6 @@ export class MentionDirective implements OnChanges {
     }
   }
 
-  // @HostListener('compositionstart ', ['$event'])
-  // @HostListener('compositionupdate ', ['$event'])
-  // onComposition() {
-  //   // this.inCompositionEnd = false;
-  //   this.inComposition = true;
-  //   this.imeInputStatus = IME_INPUT_STATUS.INPUTTING;
-  // }
-  // @HostListener('compositionend', ['$event'])
-  // onCompositionEnd() {
-  //   this.inComposition = false;
-  //   this.imeInputStatus = IME_INPUT_STATUS.FIXED;
-  // }
-
   getImeInputStatus(keyDownCode: number, keyUpCode: number, event: any) {
     if (this.isPcSafari) {
       if (event.isComposing) {
@@ -271,14 +258,21 @@ export class MentionDirective implements OnChanges {
     if (this.disabledMention) {
       return;
     }
-    console.log({isComposing: event.isComposing});
+
     this.keyDownCode = event.which || event.keyCode;
-    if (this.isPcSafari && !event.isComposing) {
+
+    // Enter key on Windows
+    let isComposing = event.isComposing;
+    if (event.key === 'Process') {
+      isComposing = false;
+    }
+    console.log({isComposing: isComposing});
+    if (this.isPcSafari && !isComposing) {
       this.isKeyHandlerDone = true;
-      this.keyHandler(event, nativeElement);
-    } else if (this.keyDownCode !== 229 || this.isAndroid) {
+      this.keyHandler(event, nativeElement, isComposing);
+    } else if ((this.keyDownCode !== 229 || event.key === 'Process') || this.isAndroid) {
       this.isKeyHandlerDone = true;
-      this.keyHandler(event, nativeElement);
+      this.keyHandler(event, nativeElement, isComposing);
     }
   }
 
@@ -296,31 +290,31 @@ export class MentionDirective implements OnChanges {
 
     console.log({isComposing: event.isComposing});
     if (event.isComposing && this.isPcSafari && this.uaService.isPcDevice()) {
+      console.log('event.isComposing && this.isPcSafari && this.uaService.isPcDevice()');
       this.isKeyHandlerDone = false;
       return;
     }
 
     const charCode = event.which || event.keyCode;
+    const isComposing = event.isComposing;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
     console.log({imeInputStatus});
     if (imeInputStatus === IME_INPUT_STATUS.FIXED || event.shiftKey || this.isPcSafari) {
-      this.keyHandler(event, nativeElement);
+      this.keyHandler(event, nativeElement, isComposing);
     }
     this.isKeyHandlerDone = false;
   }
 
-  keyHandler(event: any, nativeElement: HTMLInputElement, ) {
+  keyHandler(event: any, nativeElement: HTMLInputElement, isComposing: boolean = false) {
     console.log('■keyHandler');
     let charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
     if (!event.wasClick) {
-      this.isComposing = event.isComposing;
+      this.isComposing = isComposing;
     }
 
     // Fix bug: getValue gets all content but originally it is right to get only current row value except html
-    let val: string = getValue(nativeElement);
-    val = getElValueExcludeHtml(nativeElement, this.iframe);
-
+    const val = getElValueExcludeHtml(nativeElement, this.iframe);
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;
     console.log({charPressed, pos, val, charCode, startPos: this.startPos});

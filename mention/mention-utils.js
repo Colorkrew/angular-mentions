@@ -176,8 +176,6 @@ function getElValueExcludeHtml(nativeElement, iframe) {
     // for (let i = 0; i < len; ++i) {
     //   html.appendChild(selection.getRangeAt(i).cloneContents());
     // }
-    selection.removeAllRanges();
-    selection.addRange(range);
     // let text =  html.innerHTML;
     // Exclude html from value e.g. `<span><a href="#">test</a></span>aaa` → `aaa`;
     text = text.replace(/<span\b[^<]*(?:(?!<\/span>)<[^<]*)*<\/span>/ig, '');
