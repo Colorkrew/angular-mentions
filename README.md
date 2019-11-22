@@ -15,16 +15,10 @@ To install and start the demo application:
     ng serve
 
 ### Usage
-
-Add the package as a dependency to your project using:
+Add the package as a dependency to goalous project using:
 
     npm install --save angular-mentions
 
-Add the CSS to your index.html:
-
-```html
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-```
 
 Add the module to your app.module imports:
 
@@ -44,11 +38,6 @@ Add the `[mention]` directive to your input element:
 <input type="text" [mention]="items">
 ```
 
-Where `items` is a string array of the items to suggest. For example:
-
-```typescript
-items: string[] = ["Noah", "Liam", "Mason", "Jacob", ...
-```
 
 #### Configuration Options
 
@@ -112,3 +101,31 @@ let mentionConfig = {
 This allows different lists and trigger characters to be configured.
 
 Note that becuase objects are mutable, changes to the items within the config will not be picked up unless a new mentionConfig object is created.
+
+### How to update angular-mentions library
+1. build package
+```
+cd ~/angular-mentions
+npm run dist
+```
+
+2. git commit & push build files
+
+3. npm install on frontend
+```
+cd ~/frontend(goalous-front-end repo)
+npm uninstall angular-mentions && npm i -S https://github.com/IsaoCorp/angular-mentions.git\#{release tag | branch}
+```
+
+If you fix angular-mentions and use in goalous-front-end as local testing
+e.g. `GL-0001` is topic branch
+```
+npm uninstall angular-mentions && npm i -S https://github.com/IsaoCorp/angular-mentions.git\#GL-0001
+```
+
+If you finished fixing angular-mentions and set new release tag
+e.g. `1.0.3` is new release tag
+```
+npm uninstall angular-mentions && npm i -S https://github.com/IsaoCorp/angular-mentions.git\#1.0.3
+```
+
