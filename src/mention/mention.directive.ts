@@ -299,9 +299,9 @@ export class MentionDirective implements OnChanges {
     const isComposing = event.isComposing;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
 
-    if (imeInputStatus === IME_INPUT_STATUS.FIXED || event.shiftKey || this.isPcSafari) {
-      this.keyHandler(event, nativeElement, isComposing);
-    }
+    //if (imeInputStatus === IME_INPUT_STATUS.FIXED || event.shiftKey || this.isPcSafari) {
+    this.keyHandler(event, nativeElement, isComposing);
+    //}
     this.isKeyHandlerDone = false;
   }
 

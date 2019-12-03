@@ -241,9 +241,9 @@ var MentionDirective = /** @class */ (function () {
         var charCode = event.which || event.keyCode;
         var isComposing = event.isComposing;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
-        if (imeInputStatus === IME_INPUT_STATUS.FIXED || event.shiftKey || this.isPcSafari) {
-            this.keyHandler(event, nativeElement, isComposing);
-        }
+        //if (imeInputStatus === IME_INPUT_STATUS.FIXED || event.shiftKey || this.isPcSafari) {
+        this.keyHandler(event, nativeElement, isComposing);
+        //}
         this.isKeyHandlerDone = false;
     };
     MentionDirective.prototype.keyHandler = function (event, nativeElement, isComposing) {
