@@ -349,7 +349,8 @@ var MentionDirective = /** @class */ (function () {
                         // insertValue(nativeElement, this.startPos, pos,
                         //   this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
                         // If Android, last input character remain, so should substr include margin character.
-                        this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
+                        var startPosition = this.isComposing ? this.startPos - 1 : this.startPos;
+                        this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), startPosition, pos);
                         document.execCommand('insertHTML', false, '&nbsp;');
                         if (this.isComposing && event.wasClick && !this.isAndroid) {
                             nativeElement.blur();
@@ -393,6 +394,9 @@ var MentionDirective = /** @class */ (function () {
                 }
                 else if (!this.stopSearch) {
                     var mention = val.substring(this.startPos + 1, pos);
+                    if (this.isComposing) {
+                        mention = val.substring(this.startPos, pos);
+                    }
                     if (!this.isPcSafari && (charCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) && !this.isAndroid) {
                         mention += charPressed;
                     }
