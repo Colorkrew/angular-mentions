@@ -26,6 +26,7 @@ var KEY_UP = 38;
 var KEY_RIGHT = 39;
 var KEY_DOWN = 40;
 var KEY_2 = 50;
+var KEY_BUFFERED = 229;
 var IME_INPUT_STATUS = Object.freeze({
     NONE: 0,
     INPUTTING: 1,
@@ -205,6 +206,14 @@ var MentionDirective = /** @class */ (function () {
         }
         return keyUpCode === KEY_ENTER ? IME_INPUT_STATUS.FIXED : IME_INPUT_STATUS.INPUTTING;
     };
+    MentionDirective.prototype.inputHandler = function (event, nativeElement) {
+        if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
+        if (this.lastKeyCode === KEY_BUFFERED && event.data) {
+            var keyCode = event.data.charCodeAt(0);
+            var isComposing = event.isComposing;
+            this.keyHandler({ keyCode: keyCode, inputEvent: true }, nativeElement, isComposing);
+        }
+    };
     MentionDirective.prototype.onKeyDown = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         if (this.disabledMention) {
@@ -248,6 +257,10 @@ var MentionDirective = /** @class */ (function () {
     };
     MentionDirective.prototype.keyHandler = function (event, nativeElement, isComposing) {
         if (isComposing === void 0) { isComposing = false; }
+        this.lastKeyCode = event.keyCode;
+        if (event.isComposing || event.keyCode === KEY_BUFFERED) {
+            return;
+        }
         var charCode = event.which || event.keyCode;
         var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
         if (!event.wasClick) {
@@ -526,6 +539,12 @@ var MentionDirective = /** @class */ (function () {
         __metadata("design:paramtypes", [Object]),
         __metadata("design:returntype", void 0)
     ], MentionDirective.prototype, "blurHandler", null);
+    __decorate([
+        core_1.HostListener('input', ['$event']),
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", [Object, HTMLInputElement]),
+        __metadata("design:returntype", void 0)
+    ], MentionDirective.prototype, "inputHandler", null);
     __decorate([
         core_1.HostListener('keydown', ['$event']),
         __metadata("design:type", Function),

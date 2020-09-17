@@ -26,6 +26,7 @@ const KEY_UP = 38;
 const KEY_RIGHT = 39;
 const KEY_DOWN = 40;
 const KEY_2 = 50;
+const KEY_BUFFERED = 229;
 
 const IME_INPUT_STATUS = Object.freeze({
   NONE: 0,
@@ -100,6 +101,7 @@ export class MentionDirective implements OnChanges {
   inComposition = false;
   isKeyHandlerDone = false;
   isAttachedEventForRemoveMention = false;
+  private lastKeyCode: number;
 
   constructor(
     private _element: ElementRef,
@@ -251,6 +253,15 @@ export class MentionDirective implements OnChanges {
     return keyUpCode === KEY_ENTER ? IME_INPUT_STATUS.FIXED : IME_INPUT_STATUS.INPUTTING;
   }
 
+  @HostListener('input', ['$event'])
+  inputHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
+    if (this.lastKeyCode === KEY_BUFFERED && event.data) {
+      let keyCode = event.data.charCodeAt(0);
+      let isComposing = event.isComposing;
+      this.keyHandler({ keyCode, inputEvent: true }, nativeElement, isComposing);
+    }
+  }
+
   @HostListener('keydown', ['$event'])
   onKeyDown(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
 
@@ -306,7 +317,11 @@ export class MentionDirective implements OnChanges {
   }
 
   keyHandler(event: any, nativeElement: HTMLInputElement, isComposing: boolean = false) {
+    this.lastKeyCode = event.keyCode;
 
+    if (event.isComposing || event.keyCode === KEY_BUFFERED) {
+      return;
+    }
     let charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
     if (!event.wasClick) {

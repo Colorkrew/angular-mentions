@@ -40,6 +40,7 @@ export declare class MentionDirective implements OnChanges {
     inComposition: boolean;
     isKeyHandlerDone: boolean;
     isAttachedEventForRemoveMention: boolean;
+    private lastKeyCode;
     constructor(_element: ElementRef, _componentResolver: ComponentFactoryResolver, _viewContainerRef: ViewContainerRef, appRef: ApplicationRef, injector: Injector, uaService: UserAgentService);
     addEventForRemoveMention(): void;
     ngOnChanges(changes: SimpleChanges): void;
@@ -49,6 +50,7 @@ export declare class MentionDirective implements OnChanges {
     stopEvent(event: any): void;
     blurHandler(event: any): void;
     getImeInputStatus(keyDownCode: number, keyUpCode: number, event: any): number;
+    inputHandler(event: any, nativeElement?: HTMLInputElement): void;
     onKeyDown(event: any, nativeElement?: HTMLInputElement): void;
     onKeyUp(event: any, nativeElement?: HTMLInputElement): void;
     keyHandler(event: any, nativeElement: HTMLInputElement, isComposing?: boolean): boolean;
