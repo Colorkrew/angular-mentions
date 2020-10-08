@@ -42,6 +42,12 @@ const IME_INPUT_STATUS = Object.freeze({
  */
 @Directive({
   selector: '[mention], [mentionConfig]',
+  host: {
+    '(keydown)': 'keyHandler($event)',
+    '(input)': 'inputHandler($event)',
+    '(blur)': 'blurHandler($event)',
+    'autocomplete': 'off'
+  }
 })
 export class MentionDirective implements OnChanges {
 
@@ -220,7 +226,7 @@ export class MentionDirective implements OnChanges {
     }
   }
 
-  @HostListener('blur', ['$event'])
+  // @HostListener('blur', ['$event'])
   blurHandler(event: any) {
     if (this.disabledMention) {
       return;
@@ -253,16 +259,16 @@ export class MentionDirective implements OnChanges {
     return keyUpCode === KEY_ENTER ? IME_INPUT_STATUS.FIXED : IME_INPUT_STATUS.INPUTTING;
   }
 
-  @HostListener('input', ['$event'])
+  // @HostListener('input', ['$event'])
   inputHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
     if (this.lastKeyCode === KEY_BUFFERED && event.data) {
-      let keyCode = event.data.charCodeAt(0);
-      let isComposing = event.isComposing;
+      const keyCode = event.data.charCodeAt(0);
+      const isComposing = event.isComposing;
       this.keyHandler({ keyCode, inputEvent: true }, nativeElement, isComposing);
     }
   }
 
-  @HostListener('keydown', ['$event'])
+  // @HostListener('keydown', ['$event'])
   onKeyDown(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
 
 
@@ -340,8 +346,7 @@ export class MentionDirective implements OnChanges {
     if (!charPressed) {
       if (!event.shiftKey && (charCode >= 65 && charCode <= 90)) {
         charPressed = String.fromCharCode(charCode + 32);
-      }
-      else {
+      } else {
         // TODO (dmacfarlane) fix this for non-alpha keys
         // http://stackoverflow.com/questions/2220196/how-to-decode-character-pressed-from-jquerys-keydowns-event-handler?lq=1
         charPressed = String.fromCharCode(charCode);
@@ -598,8 +603,7 @@ export class MentionDirective implements OnChanges {
         const fakeKeydown = {'keyCode': KEY_ENTER, 'wasClick': true};
         this.keyHandler(fakeKeydown, nativeElement);
       });
-    }
-    else {
+    } else {
       this.searchList.labelKey = this.activeConfig.labelKey;
       this.searchList.activeIndex = 0;
       this.searchList.position(nativeElement, this.iframe, this.activeConfig.dropUp);
