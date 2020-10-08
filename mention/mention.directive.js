@@ -177,6 +177,7 @@ var MentionDirective = /** @class */ (function () {
             event.stopImmediatePropagation();
         }
     };
+    // @HostListener('blur', ['$event'])
     MentionDirective.prototype.blurHandler = function (event) {
         if (this.disabledMention) {
             return;
@@ -206,6 +207,7 @@ var MentionDirective = /** @class */ (function () {
         }
         return keyUpCode === KEY_ENTER ? IME_INPUT_STATUS.FIXED : IME_INPUT_STATUS.INPUTTING;
     };
+    // @HostListener('input', ['$event'])
     MentionDirective.prototype.inputHandler = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         if (this.lastKeyCode === KEY_BUFFERED && event.data) {
@@ -214,6 +216,7 @@ var MentionDirective = /** @class */ (function () {
             this.keyHandler({ keyCode: keyCode, inputEvent: true }, nativeElement, isComposing);
         }
     };
+    // @HostListener('keydown', ['$event'])
     MentionDirective.prototype.onKeyDown = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         if (this.disabledMention) {
@@ -534,24 +537,6 @@ var MentionDirective = /** @class */ (function () {
         __metadata("design:type", Object)
     ], MentionDirective.prototype, "selectedMention", void 0);
     __decorate([
-        core_1.HostListener('blur', ['$event']),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", [Object]),
-        __metadata("design:returntype", void 0)
-    ], MentionDirective.prototype, "blurHandler", null);
-    __decorate([
-        core_1.HostListener('input', ['$event']),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", [Object, HTMLInputElement]),
-        __metadata("design:returntype", void 0)
-    ], MentionDirective.prototype, "inputHandler", null);
-    __decorate([
-        core_1.HostListener('keydown', ['$event']),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", [Object, HTMLInputElement]),
-        __metadata("design:returntype", void 0)
-    ], MentionDirective.prototype, "onKeyDown", null);
-    __decorate([
         core_1.HostListener('keyup', ['$event']),
         __metadata("design:type", Function),
         __metadata("design:paramtypes", [Object, HTMLInputElement]),
@@ -560,6 +545,12 @@ var MentionDirective = /** @class */ (function () {
     MentionDirective = __decorate([
         core_1.Directive({
             selector: '[mention], [mentionConfig]',
+            host: {
+                '(keydown)': 'keyHandler($event)',
+                '(input)': 'inputHandler($event)',
+                '(blur)': 'blurHandler($event)',
+                'autocomplete': 'off'
+            }
         }),
         __metadata("design:paramtypes", [core_1.ElementRef,
             core_1.ComponentFactoryResolver,
