@@ -5,7 +5,7 @@ import {
   ViewContainerRef,
   TemplateRef,
   ApplicationRef,
-  Injector, EmbeddedViewRef, ComponentRef, HostListener
+  Injector, EmbeddedViewRef, ComponentRef
 } from '@angular/core';
 import { Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/core';
 
@@ -293,7 +293,7 @@ export class MentionDirective implements OnChanges {
     }
   }
 
-  @HostListener('keyup', ['$event'])
+  // @HostListener('keyup', ['$event'])
   onKeyUp(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
 
 
@@ -322,27 +322,23 @@ export class MentionDirective implements OnChanges {
     this.isKeyHandlerDone = false;
   }
 
-  keyHandler(event: any, nativeElement: HTMLInputElement, isComposing: boolean = false) {
+  keyHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement, isComposing: boolean = false) {
     this.lastKeyCode = event.keyCode;
 
     if (event.isComposing || event.keyCode === KEY_BUFFERED) {
       return;
     }
-    let charCode = event.which || event.keyCode;
+    const charCode = event.which || event.keyCode;
     const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
     if (!event.wasClick) {
       this.isComposing = isComposing;
     }
 
     // Fix bug: getValue gets all content but originally it is right to get only current row value except html
-    const val = getElValueExcludeHtml(nativeElement, this.iframe);
+    const val = getValue(nativeElement);
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;
 
-    if (event.shiftKey && charCode === KEY_2) {
-      charPressed = '@';
-
-    }
     if (!charPressed) {
       if (!event.shiftKey && (charCode >= 65 && charCode <= 90)) {
         charPressed = String.fromCharCode(charCode + 32);
@@ -352,27 +348,7 @@ export class MentionDirective implements OnChanges {
         charPressed = String.fromCharCode(charCode);
       }
 
-
-    } else if (this.isAndroid) {
-      // [Caution ]On Android, Keycode value is return as 229 for all keys
-      // https://stackoverflow.com/questions/39035374/keycode-value-is-return-as-229-for-all-keys
-      if (charCode === 0 || charCode === 229) {
-        const mentionRangeVal = val.substring(0, pos);
-        const lastIdx = mentionRangeVal.length - 1;
-        charCode = mentionRangeVal.charCodeAt(lastIdx);
-        charPressed = mentionRangeVal.substr(lastIdx);
-
-      }
     }
-
-
-
-    if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
-
-      this.resetSearchList();
-      return;
-    }
-
 
     if (charCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
 
@@ -383,45 +359,20 @@ export class MentionDirective implements OnChanges {
 
 
     const config = this.triggerChars[charPressed];
-    if (config && (!this.isAndroid || (this.isAndroid && !this.isComposing))) {
-
+    if (config) {
       this.activeConfig = config;
-      this.startPos = pos;
-      let tmpChara = val.substring(this.startPos - 1, this.startPos);
-
-      if (tmpChara.length > 0) {
-        if (tmpChara === charPressed) {
-          this.startPos--;
-        }
-      } else {
-        tmpChara = val.substring(this.startPos + 1, this.startPos + 2);
-
-
-        if (tmpChara === charPressed) {
-          this.startPos++;
-        }
-      }
-
-      if (this.startPos < 0) {
-
-        this.startPos = 0;
-      }
-
+      this.startPos = event.inputEvent ? pos - 1 : pos;
       this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
       this.stopSearch = false;
-      this.searchString = '';
+      this.searchString = null;
       this.showSearchList(nativeElement);
-      // Comment outt prevent to show search list when just input triggerChara
       // this.updateSearchList();
-      // this.activeConfig.items = [];
 
     } else if (this.startPos >= 0 && !this.stopSearch) {
 
       if (pos <= this.startPos) {
         this.searchList.hidden = true;
-      }
-      // ignore shift when pressed alone, but not when used with another key
-      else if (charCode !== KEY_SHIFT &&
+      } else if (charCode !== KEY_SHIFT &&
         !event.metaKey &&
         !event.altKey &&
         !event.ctrlKey &&
@@ -430,20 +381,14 @@ export class MentionDirective implements OnChanges {
 
         if (charCode === KEY_SPACE) {
           this.startPos = -1;
-        }
-        else if (charCode === KEY_BACKSPACE && pos > 0) {
+        } else if (charCode === KEY_BACKSPACE && pos > 0) {
           pos--;
           if (pos === this.startPos) {
             this.stopSearch = true;
           }
           this.searchList.hidden = this.stopSearch;
-        }
-        else if (!this.searchList.hidden) {
-          if (charCode === KEY_TAB
-            || (charCode === KEY_ENTER && this.isPcSafari)
-            || (charCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)
-            || (charCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.FIXED && event.wasClick)
-          ) {
+        } else if (!this.searchList.hidden) {
+          if (event.keyCode === KEY_TAB || event.keyCode === KEY_ENTER) {
 
             this.stopEvent(event);
             this.searchList.hidden = true;
@@ -477,33 +422,30 @@ export class MentionDirective implements OnChanges {
 
             this.startPos = -1;
             return false;
-          }
-          else if (charCode === KEY_ESCAPE) {
+          } else if (charCode === KEY_ESCAPE) {
             this.stopEvent(event);
             this.searchList.hidden = true;
             this.stopSearch = true;
             return false;
-          }
-          else if (charCode === KEY_DOWN) {
+          } else if (charCode === KEY_DOWN) {
             this.stopEvent(event);
             this.searchList.activateNextItem();
             return false;
-          }
-          else if (charCode === KEY_UP) {
+          } else if (charCode === KEY_UP) {
             this.stopEvent(event);
             this.searchList.activatePreviousItem();
             return false;
           }
         }
 
-        if (charCode === KEY_LEFT || charCode === KEY_RIGHT) {
+        if (charPressed.length !== 1 && event.keyCode !== KEY_BACKSPACE) {
           this.stopEvent(event);
           return false;
         } else if (!this.stopSearch) {
 
           let mention = val.substring(this.startPos + 1, pos);
 
-          if (!this.isPcSafari && (charCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) && !this.isAndroid) {
+          if (event.keyCode !== KEY_BACKSPACE && !event.inputEvent) {
             mention += charPressed;
 
           }
