@@ -237,6 +237,7 @@ var MentionDirective = /** @class */ (function () {
             this.keyHandler(event, nativeElement, isComposing);
         }
     };
+    // @HostListener('keyup', ['$event'])
     MentionDirective.prototype.onKeyUp = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         if (this.disabledMention) {
@@ -259,23 +260,17 @@ var MentionDirective = /** @class */ (function () {
         this.isKeyHandlerDone = false;
     };
     MentionDirective.prototype.keyHandler = function (event, nativeElement, isComposing) {
+        if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         if (isComposing === void 0) { isComposing = false; }
         this.lastKeyCode = event.keyCode;
         if (event.isComposing || event.keyCode === KEY_BUFFERED) {
             return;
         }
         var charCode = event.which || event.keyCode;
-        var imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
-        if (!event.wasClick) {
-            this.isComposing = isComposing;
-        }
         // Fix bug: getValue gets all content but originally it is right to get only current row value except html
-        var val = mention_utils_1.getElValueExcludeHtml(nativeElement, this.iframe);
+        var val = mention_utils_1.getValue(nativeElement);
         var pos = mention_utils_1.getCaretPosition(nativeElement, this.iframe);
         var charPressed = event.key;
-        if (event.shiftKey && charCode === KEY_2) {
-            charPressed = '@';
-        }
         if (!charPressed) {
             if (!event.shiftKey && (charCode >= 65 && charCode <= 90)) {
                 charPressed = String.fromCharCode(charCode + 32);
@@ -286,57 +281,25 @@ var MentionDirective = /** @class */ (function () {
                 charPressed = String.fromCharCode(charCode);
             }
         }
-        else if (this.isAndroid) {
-            // [Caution ]On Android, Keycode value is return as 229 for all keys
-            // https://stackoverflow.com/questions/39035374/keycode-value-is-return-as-229-for-all-keys
-            if (charCode === 0 || charCode === 229) {
-                var mentionRangeVal = val.substring(0, pos);
-                var lastIdx = mentionRangeVal.length - 1;
-                charCode = mentionRangeVal.charCodeAt(lastIdx);
-                charPressed = mentionRangeVal.substr(lastIdx);
-            }
-        }
-        if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
-            this.resetSearchList();
-            return;
-        }
         if (charCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
             // put caret back in position prior to contenteditable menu click
             pos = this.startNode.length;
             mention_utils_1.setCaretPosition(this.startNode, pos, this.iframe);
         }
         var config = this.triggerChars[charPressed];
-        if (config && (!this.isAndroid || (this.isAndroid && !this.isComposing))) {
+        if (config) {
             this.activeConfig = config;
-            this.startPos = pos;
-            var tmpChara = val.substring(this.startPos - 1, this.startPos);
-            if (tmpChara.length > 0) {
-                if (tmpChara === charPressed) {
-                    this.startPos--;
-                }
-            }
-            else {
-                tmpChara = val.substring(this.startPos + 1, this.startPos + 2);
-                if (tmpChara === charPressed) {
-                    this.startPos++;
-                }
-            }
-            if (this.startPos < 0) {
-                this.startPos = 0;
-            }
+            this.startPos = event.inputEvent ? pos - 1 : pos;
             this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
             this.stopSearch = false;
-            this.searchString = '';
+            this.searchString = null;
             this.showSearchList(nativeElement);
-            // Comment outt prevent to show search list when just input triggerChara
             // this.updateSearchList();
-            // this.activeConfig.items = [];
         }
         else if (this.startPos >= 0 && !this.stopSearch) {
             if (pos <= this.startPos) {
                 this.searchList.hidden = true;
             }
-            // ignore shift when pressed alone, but not when used with another key
             else if (charCode !== KEY_SHIFT &&
                 !event.metaKey &&
                 !event.altKey &&
@@ -353,10 +316,7 @@ var MentionDirective = /** @class */ (function () {
                     this.searchList.hidden = this.stopSearch;
                 }
                 else if (!this.searchList.hidden) {
-                    if (charCode === KEY_TAB
-                        || (charCode === KEY_ENTER && this.isPcSafari)
-                        || (charCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)
-                        || (charCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.FIXED && event.wasClick)) {
+                    if (event.keyCode === KEY_TAB || event.keyCode === KEY_ENTER) {
                         this.stopEvent(event);
                         this.searchList.hidden = true;
                         // [Goalous Fix] original fix to support to insert mention html when selected mention item
@@ -403,13 +363,13 @@ var MentionDirective = /** @class */ (function () {
                         return false;
                     }
                 }
-                if (charCode === KEY_LEFT || charCode === KEY_RIGHT) {
+                if (charPressed.length !== 1 && event.keyCode !== KEY_BACKSPACE) {
                     this.stopEvent(event);
                     return false;
                 }
                 else if (!this.stopSearch) {
                     var mention = val.substring(this.startPos + 1, pos);
-                    if (!this.isPcSafari && (charCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) && !this.isAndroid) {
+                    if (event.keyCode !== KEY_BACKSPACE && !event.inputEvent) {
                         mention += charPressed;
                     }
                     if (mention.length > 0) {
@@ -536,12 +496,6 @@ var MentionDirective = /** @class */ (function () {
         core_2.Output(),
         __metadata("design:type", Object)
     ], MentionDirective.prototype, "selectedMention", void 0);
-    __decorate([
-        core_1.HostListener('keyup', ['$event']),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", [Object, HTMLInputElement]),
-        __metadata("design:returntype", void 0)
-    ], MentionDirective.prototype, "onKeyUp", null);
     MentionDirective = __decorate([
         core_1.Directive({
             selector: '[mention], [mentionConfig]',
