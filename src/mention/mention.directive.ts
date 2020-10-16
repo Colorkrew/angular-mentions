@@ -329,10 +329,6 @@ export class MentionDirective implements OnChanges {
       return;
     }
     const charCode = event.which || event.keyCode;
-    const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
-    if (!event.wasClick) {
-      this.isComposing = isComposing;
-    }
 
     // Fix bug: getValue gets all content but originally it is right to get only current row value except html
     const val = getValue(nativeElement);
