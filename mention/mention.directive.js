@@ -268,7 +268,7 @@ var MentionDirective = /** @class */ (function () {
         }
         var charCode = event.which || event.keyCode;
         // Fix bug: getValue gets all content but originally it is right to get only current row value except html
-        var val = mention_utils_1.getValue(nativeElement);
+        var val = mention_utils_1.getElValueExcludeHtml(nativeElement, this.iframe);
         var pos = mention_utils_1.getCaretPosition(nativeElement, this.iframe);
         var charPressed = event.key;
         if (!charPressed) {
@@ -289,7 +289,23 @@ var MentionDirective = /** @class */ (function () {
         var config = this.triggerChars[charPressed];
         if (config) {
             this.activeConfig = config;
-            this.startPos = event.inputEvent ? pos - 1 : pos;
+            // this.startPos = event.inputEvent ? pos - 1 : pos;
+            this.startPos = pos;
+            var tmpChara = val.substring(this.startPos - 1, this.startPos);
+            if (tmpChara.length > 0) {
+                if (tmpChara === charPressed) {
+                    this.startPos--;
+                }
+            }
+            else {
+                tmpChara = val.substring(this.startPos + 1, this.startPos + 2);
+                if (tmpChara === charPressed) {
+                    this.startPos++;
+                }
+            }
+            if (this.startPos < 0) {
+                this.startPos = 0;
+            }
             this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
             this.stopSearch = false;
             this.searchString = null;
@@ -327,11 +343,6 @@ var MentionDirective = /** @class */ (function () {
                         // If Android, last input character remain, so should substr include margin character.
                         this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
                         document.execCommand('insertHTML', false, '&nbsp;');
-                        if (this.isComposing && event.wasClick && !this.isAndroid) {
-                            nativeElement.blur();
-                            this.isComposing = false;
-                        }
-                        this.addEventForRemoveMention();
                         this.selectedMention.emit(this.searchList.activeItem);
                         // Reset items
                         this.resetSearchList();

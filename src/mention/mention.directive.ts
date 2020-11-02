@@ -331,7 +331,7 @@ export class MentionDirective implements OnChanges {
     const charCode = event.which || event.keyCode;
 
     // Fix bug: getValue gets all content but originally it is right to get only current row value except html
-    const val = getValue(nativeElement);
+    const val = getElValueExcludeHtml(nativeElement, this.iframe);
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;
 
@@ -357,7 +357,22 @@ export class MentionDirective implements OnChanges {
     const config = this.triggerChars[charPressed];
     if (config) {
       this.activeConfig = config;
-      this.startPos = event.inputEvent ? pos - 1 : pos;
+      // this.startPos = event.inputEvent ? pos - 1 : pos;
+      this.startPos = pos;
+      let tmpChara = val.substring(this.startPos - 1, this.startPos);
+      if (tmpChara.length > 0) {
+        if (tmpChara === charPressed) {
+          this.startPos--;
+        }
+      }else {
+        tmpChara = val.substring(this.startPos + 1, this.startPos + 2);
+        if (tmpChara === charPressed) {
+          this.startPos++;
+        }
+      }
+      if (this.startPos < 0) {
+        this.startPos = 0;
+      }
       this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
       this.stopSearch = false;
       this.searchString = null;
@@ -397,11 +412,7 @@ export class MentionDirective implements OnChanges {
             // If Android, last input character remain, so should substr include margin character.
             this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
             document.execCommand('insertHTML', false, '&nbsp;');
-            if (this.isComposing && event.wasClick && !this.isAndroid) {
-              nativeElement.blur();
-              this.isComposing = false;
-            }
-            this.addEventForRemoveMention();
+
             this.selectedMention.emit(this.searchList.activeItem);
 
             // Reset items
