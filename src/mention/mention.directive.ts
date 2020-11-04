@@ -261,7 +261,7 @@ export class MentionDirective implements OnChanges {
 
   // @HostListener('input', ['$event'])
   inputHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
-    if (this.lastKeyCode === KEY_BUFFERED && event.data) {
+    if (this.lastKeyCode === KEY_BUFFERED && event.data || event.inputType === 'insertFromComposition') {
       const keyCode = event.data.charCodeAt(0);
       const isComposing = event.isComposing;
       this.keyHandler({ keyCode, inputEvent: true }, nativeElement, isComposing);
