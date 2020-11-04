@@ -210,7 +210,7 @@ var MentionDirective = /** @class */ (function () {
     // @HostListener('input', ['$event'])
     MentionDirective.prototype.inputHandler = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
-        if (this.lastKeyCode === KEY_BUFFERED && event.data) {
+        if (this.lastKeyCode === KEY_BUFFERED && event.data || event.inputType === 'insertFromComposition') {
             var keyCode = event.data.charCodeAt(0);
             var isComposing = event.isComposing;
             this.keyHandler({ keyCode: keyCode, inputEvent: true }, nativeElement, isComposing);
