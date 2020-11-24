@@ -45,6 +45,7 @@ const IME_INPUT_STATUS = Object.freeze({
   host: {
     '(keydown)': 'keyHandler($event)',
     '(input)': 'inputHandler($event)',
+    '(compositionend)': 'compositionendHandler($event)',
     '(blur)': 'blurHandler($event)',
     'autocomplete': 'off'
   }
@@ -265,6 +266,13 @@ export class MentionDirective implements OnChanges {
       const keyCode = event.data.charCodeAt(0);
       const isComposing = event.isComposing;
       this.keyHandler({ keyCode, inputEvent: true }, nativeElement, isComposing);
+    }
+  }
+
+  compositionendHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
+    if (event.data) {
+      const keyCode = event.data.charCodeAt(0);
+      this.keyHandler({ keyCode, inputEvent: true }, nativeElement);
     }
   }
 

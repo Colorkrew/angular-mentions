@@ -216,6 +216,13 @@ var MentionDirective = /** @class */ (function () {
             this.keyHandler({ keyCode: keyCode, inputEvent: true }, nativeElement, isComposing);
         }
     };
+    MentionDirective.prototype.compositionendHandler = function (event, nativeElement) {
+        if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
+        if (event.data) {
+            var keyCode = event.data.charCodeAt(0);
+            this.keyHandler({ keyCode: keyCode, inputEvent: true }, nativeElement);
+        }
+    };
     // @HostListener('keydown', ['$event'])
     MentionDirective.prototype.onKeyDown = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
@@ -513,6 +520,7 @@ var MentionDirective = /** @class */ (function () {
             host: {
                 '(keydown)': 'keyHandler($event)',
                 '(input)': 'inputHandler($event)',
+                '(compositionend)': 'compositionendHandler($event)',
                 '(blur)': 'blurHandler($event)',
                 'autocomplete': 'off'
             }
