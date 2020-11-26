@@ -210,10 +210,9 @@ var MentionDirective = /** @class */ (function () {
     // @HostListener('input', ['$event'])
     MentionDirective.prototype.inputHandler = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
-        if (this.lastKeyCode === KEY_BUFFERED && event.data || event.inputType === 'insertFromComposition') {
+        if (event.inputType === 'insertText' && event.isComposing === false) {
             var keyCode = event.data.charCodeAt(0);
-            var isComposing = event.isComposing;
-            this.keyHandler({ keyCode: keyCode, inputEvent: true }, nativeElement, isComposing);
+            this.keyHandler({ keyCode: keyCode, inputEvent: true }, nativeElement);
         }
     };
     MentionDirective.prototype.compositionendHandler = function (event, nativeElement) {
@@ -348,9 +347,25 @@ var MentionDirective = /** @class */ (function () {
                         // insertValue(nativeElement, this.startPos, pos,
                         //   this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
                         // If Android, last input character remain, so should substr include margin character.
-                        this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
-                        document.execCommand('insertHTML', false, '&nbsp;');
+                        // this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
+                        // document.execCommand('insertHTML', false, '&nbsp;');
+                        var text = this.activeConfig.mentionSelect(this.searchList.activeItem);
+                        mention_utils_1.insertValue(nativeElement, this.startPos, pos, text, this.iframe);
                         this.selectedMention.emit(this.searchList.activeItem);
+                        // fire input event so angular bindings are updated
+                        if ("createEvent" in document) {
+                            var evt = document.createEvent("HTMLEvents");
+                            if (this.iframe) {
+                                // a 'change' event is required to trigger tinymce updates
+                                evt.initEvent("change", true, false);
+                            }
+                            else {
+                                evt.initEvent("input", true, false);
+                            }
+                            // this seems backwards, but fire the event from this elements nativeElement (not the
+                            // one provided that may be in an iframe, as it won't be propogate)
+                            this._element.nativeElement.dispatchEvent(evt);
+                        }
                         // Reset items
                         this.resetSearchList();
                         // [Goalous Fix] Comment out becuase this cause web page crash
