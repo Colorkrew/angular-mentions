@@ -177,7 +177,6 @@ var MentionDirective = /** @class */ (function () {
             event.stopImmediatePropagation();
         }
     };
-    // @HostListener('blur', ['$event'])
     MentionDirective.prototype.blurHandler = function (event) {
         if (this.disabledMention) {
             return;
@@ -207,7 +206,6 @@ var MentionDirective = /** @class */ (function () {
         }
         return keyUpCode === KEY_ENTER ? IME_INPUT_STATUS.FIXED : IME_INPUT_STATUS.INPUTTING;
     };
-    // @HostListener('input', ['$event'])
     MentionDirective.prototype.inputHandler = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         if (event.inputType === 'insertText' && event.isComposing === false) {
@@ -222,7 +220,6 @@ var MentionDirective = /** @class */ (function () {
             this.keyHandler({ keyCode: keyCode, inputEvent: true }, nativeElement);
         }
     };
-    // @HostListener('keydown', ['$event'])
     MentionDirective.prototype.onKeyDown = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         if (this.disabledMention) {
@@ -243,7 +240,6 @@ var MentionDirective = /** @class */ (function () {
             this.keyHandler(event, nativeElement, isComposing);
         }
     };
-    // @HostListener('keyup', ['$event'])
     MentionDirective.prototype.onKeyUp = function (event, nativeElement) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         if (this.disabledMention) {
@@ -268,7 +264,6 @@ var MentionDirective = /** @class */ (function () {
     MentionDirective.prototype.keyHandler = function (event, nativeElement, isComposing) {
         if (nativeElement === void 0) { nativeElement = this._element.nativeElement; }
         if (isComposing === void 0) { isComposing = false; }
-        this.lastKeyCode = event.keyCode;
         if (event.isComposing || event.keyCode === KEY_BUFFERED) {
             return;
         }

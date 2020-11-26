@@ -40,7 +40,6 @@ export declare class MentionDirective implements OnChanges {
     inComposition: boolean;
     isKeyHandlerDone: boolean;
     isAttachedEventForRemoveMention: boolean;
-    private lastKeyCode;
     constructor(_element: ElementRef, _componentResolver: ComponentFactoryResolver, _viewContainerRef: ViewContainerRef, appRef: ApplicationRef, injector: Injector, uaService: UserAgentService);
     addEventForRemoveMention(): void;
     ngOnChanges(changes: SimpleChanges): void;

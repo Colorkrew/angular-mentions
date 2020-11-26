@@ -108,7 +108,6 @@ export class MentionDirective implements OnChanges {
   inComposition = false;
   isKeyHandlerDone = false;
   isAttachedEventForRemoveMention = false;
-  private lastKeyCode: number;
 
   constructor(
     private _element: ElementRef,
@@ -227,7 +226,6 @@ export class MentionDirective implements OnChanges {
     }
   }
 
-  // @HostListener('blur', ['$event'])
   blurHandler(event: any) {
     if (this.disabledMention) {
       return;
@@ -260,7 +258,6 @@ export class MentionDirective implements OnChanges {
     return keyUpCode === KEY_ENTER ? IME_INPUT_STATUS.FIXED : IME_INPUT_STATUS.INPUTTING;
   }
 
-  // @HostListener('input', ['$event'])
   inputHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
     if (event.inputType === 'insertText' && event.isComposing === false) {
       const keyCode = event.data.charCodeAt(0);
@@ -275,7 +272,6 @@ export class MentionDirective implements OnChanges {
     }
   }
 
-  // @HostListener('keydown', ['$event'])
   onKeyDown(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
 
 
@@ -300,7 +296,6 @@ export class MentionDirective implements OnChanges {
     }
   }
 
-  // @HostListener('keyup', ['$event'])
   onKeyUp(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
 
 
@@ -330,8 +325,6 @@ export class MentionDirective implements OnChanges {
   }
 
   keyHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement, isComposing: boolean = false) {
-    this.lastKeyCode = event.keyCode;
-
     if (event.isComposing || event.keyCode === KEY_BUFFERED) {
       return;
     }
