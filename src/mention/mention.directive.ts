@@ -11,7 +11,7 @@ import { Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/
 
 import { MentionConfig } from './mention-config';
 import { MentionListComponent } from './mention-list.component';
-import { getCaretPosition, getElValueExcludeHtml, getValue, setCaretPosition } from './mention-utils';
+import { getCaretPosition, getElValueExcludeHtml, getValue, insertValue, setCaretPosition } from './mention-utils';
 import { UserAgentService } from './user-agent.service';
 import { BrowserType } from './browser-type';
 
@@ -262,10 +262,9 @@ export class MentionDirective implements OnChanges {
 
   // @HostListener('input', ['$event'])
   inputHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
-    if (this.lastKeyCode === KEY_BUFFERED && event.data || event.inputType === 'insertFromComposition') {
+    if (event.inputType === 'insertText' && event.isComposing === false) {
       const keyCode = event.data.charCodeAt(0);
-      const isComposing = event.isComposing;
-      this.keyHandler({ keyCode, inputEvent: true }, nativeElement, isComposing);
+      this.keyHandler({ keyCode, inputEvent: true }, nativeElement);
     }
   }
 
@@ -418,10 +417,27 @@ export class MentionDirective implements OnChanges {
             // insertValue(nativeElement, this.startPos, pos,
             //   this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
             // If Android, last input character remain, so should substr include margin character.
-            this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
-            document.execCommand('insertHTML', false, '&nbsp;');
+            // this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
+            // document.execCommand('insertHTML', false, '&nbsp;');
+            const text = this.activeConfig.mentionSelect(this.searchList.activeItem);
+            insertValue(nativeElement, this.startPos, pos, text, this.iframe);
 
             this.selectedMention.emit(this.searchList.activeItem);
+
+            // fire input event so angular bindings are updated
+            if ("createEvent" in document) {
+              let evt = document.createEvent("HTMLEvents");
+              if (this.iframe) {
+                // a 'change' event is required to trigger tinymce updates
+                evt.initEvent("change", true, false);
+              }
+              else {
+                evt.initEvent("input", true, false);
+              }
+              // this seems backwards, but fire the event from this elements nativeElement (not the
+              // one provided that may be in an iframe, as it won't be propogate)
+              this._element.nativeElement.dispatchEvent(evt);
+            }
 
             // Reset items
             this.resetSearchList();
