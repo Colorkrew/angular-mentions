@@ -77,10 +77,7 @@ export function getCaretPosition(el: HTMLInputElement, iframe: HTMLIFrameElement
     var selObj = getWindowSelection(iframe); //window.getSelection();
     if (selObj.rangeCount > 0) {
       var selRange = selObj.getRangeAt(0);
-      var preCaretRange = selRange.cloneRange();
-      preCaretRange.selectNodeContents(el);
-      preCaretRange.setEnd(selRange.endContainer, selRange.endOffset);
-      var position = preCaretRange.toString().length;
+      var position = selRange.endOffset;
       return position;
     }
   }
