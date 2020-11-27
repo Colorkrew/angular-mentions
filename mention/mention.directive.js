@@ -402,7 +402,7 @@ var MentionDirective = /** @class */ (function () {
                     }
                     if (mention.length > 0) {
                         this.searchString = mention;
-                        this.searchTerm.emit(this.searchString);
+                        this.searchTerm.emit(this.activeConfig.triggerChar + this.searchString);
                         this.updateSearchList();
                     }
                     else {
