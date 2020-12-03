@@ -49,9 +49,11 @@ export declare class MentionDirective implements OnChanges {
     stopEvent(event: any): void;
     blurHandler(event: any): void;
     getImeInputStatus(keyDownCode: number, keyUpCode: number, event: any): number;
+    inputHandler(event: any, nativeElement?: HTMLInputElement): void;
+    compositionendHandler(event: any, nativeElement?: HTMLInputElement): void;
     onKeyDown(event: any, nativeElement?: HTMLInputElement): void;
     onKeyUp(event: any, nativeElement?: HTMLInputElement): void;
-    keyHandler(event: any, nativeElement: HTMLInputElement, isComposing?: boolean): boolean;
+    keyHandler(event: any, nativeElement?: HTMLInputElement, isComposing?: boolean): boolean;
     insertHtml(html: any, startPos: any, endPos: any): void;
     resetSearchList(): void;
     updateSearchList(changeSearchListHidden?: boolean): void;

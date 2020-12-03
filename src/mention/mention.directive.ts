@@ -5,13 +5,13 @@ import {
   ViewContainerRef,
   TemplateRef,
   ApplicationRef,
-  Injector, EmbeddedViewRef, ComponentRef, HostListener
+  Injector, EmbeddedViewRef, ComponentRef
 } from '@angular/core';
 import { Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/core';
 
 import { MentionConfig } from './mention-config';
 import { MentionListComponent } from './mention-list.component';
-import { getCaretPosition, getElValueExcludeHtml, getValue, setCaretPosition } from './mention-utils';
+import { getCaretPosition, getElValueExcludeHtml, getValue, insertValue, setCaretPosition } from './mention-utils';
 import { UserAgentService } from './user-agent.service';
 import { BrowserType } from './browser-type';
 
@@ -26,6 +26,7 @@ const KEY_UP = 38;
 const KEY_RIGHT = 39;
 const KEY_DOWN = 40;
 const KEY_2 = 50;
+const KEY_BUFFERED = 229;
 
 const IME_INPUT_STATUS = Object.freeze({
   NONE: 0,
@@ -41,6 +42,13 @@ const IME_INPUT_STATUS = Object.freeze({
  */
 @Directive({
   selector: '[mention], [mentionConfig]',
+  host: {
+    '(keydown)': 'keyHandler($event)',
+    '(input)': 'inputHandler($event)',
+    '(compositionend)': 'compositionendHandler($event)',
+    '(blur)': 'blurHandler($event)',
+    'autocomplete': 'off'
+  }
 })
 export class MentionDirective implements OnChanges {
 
@@ -218,7 +226,6 @@ export class MentionDirective implements OnChanges {
     }
   }
 
-  @HostListener('blur', ['$event'])
   blurHandler(event: any) {
     if (this.disabledMention) {
       return;
@@ -251,7 +258,20 @@ export class MentionDirective implements OnChanges {
     return keyUpCode === KEY_ENTER ? IME_INPUT_STATUS.FIXED : IME_INPUT_STATUS.INPUTTING;
   }
 
-  @HostListener('keydown', ['$event'])
+  inputHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
+    if (event.inputType === 'insertText' && event.isComposing === false) {
+      const keyCode = event.data.charCodeAt(0);
+      this.keyHandler({ keyCode, inputEvent: true }, nativeElement);
+    }
+  }
+
+  compositionendHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
+    if (event.data) {
+      const keyCode = event.data.charCodeAt(0);
+      this.keyHandler({ keyCode, inputEvent: true }, nativeElement);
+    }
+  }
+
   onKeyDown(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
 
 
@@ -276,7 +296,6 @@ export class MentionDirective implements OnChanges {
     }
   }
 
-  @HostListener('keyup', ['$event'])
   onKeyUp(event: any, nativeElement: HTMLInputElement = this._element.nativeElement) {
 
 
@@ -305,54 +324,27 @@ export class MentionDirective implements OnChanges {
     this.isKeyHandlerDone = false;
   }
 
-  keyHandler(event: any, nativeElement: HTMLInputElement, isComposing: boolean = false) {
-
-    let charCode = event.which || event.keyCode;
-    const imeInputStatus = this.getImeInputStatus(this.keyDownCode, charCode, event);
-    if (!event.wasClick) {
-      this.isComposing = isComposing;
+  keyHandler(event: any, nativeElement: HTMLInputElement = this._element.nativeElement, isComposing: boolean = false) {
+    if (event.isComposing || event.keyCode === KEY_BUFFERED) {
+      return;
     }
+    const charCode = event.which || event.keyCode;
 
     // Fix bug: getValue gets all content but originally it is right to get only current row value except html
     const val = getElValueExcludeHtml(nativeElement, this.iframe);
     let pos = getCaretPosition(nativeElement, this.iframe);
     let charPressed = event.key;
 
-    if (event.shiftKey && charCode === KEY_2) {
-      charPressed = '@';
-
-    }
     if (!charPressed) {
       if (!event.shiftKey && (charCode >= 65 && charCode <= 90)) {
         charPressed = String.fromCharCode(charCode + 32);
-      }
-      else {
+      } else {
         // TODO (dmacfarlane) fix this for non-alpha keys
         // http://stackoverflow.com/questions/2220196/how-to-decode-character-pressed-from-jquerys-keydowns-event-handler?lq=1
         charPressed = String.fromCharCode(charCode);
       }
 
-
-    } else if (this.isAndroid) {
-      // [Caution ]On Android, Keycode value is return as 229 for all keys
-      // https://stackoverflow.com/questions/39035374/keycode-value-is-return-as-229-for-all-keys
-      if (charCode === 0 || charCode === 229) {
-        const mentionRangeVal = val.substring(0, pos);
-        const lastIdx = mentionRangeVal.length - 1;
-        charCode = mentionRangeVal.charCodeAt(lastIdx);
-        charPressed = mentionRangeVal.substr(lastIdx);
-
-      }
     }
-
-
-
-    if (charCode === KEY_SPACE && this.activeConfig && !this.searchList.hidden) {
-
-      this.resetSearchList();
-      return;
-    }
-
 
     if (charCode === KEY_ENTER && event.wasClick && pos < this.startPos) {
 
@@ -363,45 +355,35 @@ export class MentionDirective implements OnChanges {
 
 
     const config = this.triggerChars[charPressed];
-    if (config && (!this.isAndroid || (this.isAndroid && !this.isComposing))) {
-
+    if (config) {
       this.activeConfig = config;
+      // this.startPos = event.inputEvent ? pos - 1 : pos;
       this.startPos = pos;
       let tmpChara = val.substring(this.startPos - 1, this.startPos);
-
       if (tmpChara.length > 0) {
         if (tmpChara === charPressed) {
           this.startPos--;
         }
-      } else {
+      }else {
         tmpChara = val.substring(this.startPos + 1, this.startPos + 2);
-
-
         if (tmpChara === charPressed) {
           this.startPos++;
         }
       }
-
       if (this.startPos < 0) {
-
         this.startPos = 0;
       }
-
       this.startNode = (this.iframe ? this.iframe.contentWindow.getSelection() : window.getSelection()).anchorNode;
       this.stopSearch = false;
-      this.searchString = '';
+      this.searchString = null;
       this.showSearchList(nativeElement);
-      // Comment outt prevent to show search list when just input triggerChara
       // this.updateSearchList();
-      // this.activeConfig.items = [];
 
     } else if (this.startPos >= 0 && !this.stopSearch) {
 
       if (pos <= this.startPos) {
         this.searchList.hidden = true;
-      }
-      // ignore shift when pressed alone, but not when used with another key
-      else if (charCode !== KEY_SHIFT &&
+      } else if (charCode !== KEY_SHIFT &&
         !event.metaKey &&
         !event.altKey &&
         !event.ctrlKey &&
@@ -410,20 +392,14 @@ export class MentionDirective implements OnChanges {
 
         if (charCode === KEY_SPACE) {
           this.startPos = -1;
-        }
-        else if (charCode === KEY_BACKSPACE && pos > 0) {
+        } else if (charCode === KEY_BACKSPACE && pos > 0) {
           pos--;
           if (pos === this.startPos) {
             this.stopSearch = true;
           }
           this.searchList.hidden = this.stopSearch;
-        }
-        else if (!this.searchList.hidden) {
-          if (charCode === KEY_TAB
-            || (charCode === KEY_ENTER && this.isPcSafari)
-            || (charCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.NONE)
-            || (charCode === KEY_ENTER && imeInputStatus === IME_INPUT_STATUS.FIXED && event.wasClick)
-          ) {
+        } else if (!this.searchList.hidden) {
+          if (event.keyCode === KEY_TAB || event.keyCode === KEY_ENTER) {
 
             this.stopEvent(event);
             this.searchList.hidden = true;
@@ -434,14 +410,27 @@ export class MentionDirective implements OnChanges {
             // insertValue(nativeElement, this.startPos, pos,
             //   this.activeConfig.mentionSelect(this.searchList.activeItem), this.iframe);
             // If Android, last input character remain, so should substr include margin character.
-            this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
-            document.execCommand('insertHTML', false, '&nbsp;');
-            if (this.isComposing && event.wasClick && !this.isAndroid) {
-              nativeElement.blur();
-              this.isComposing = false;
-            }
-            this.addEventForRemoveMention();
+            // this.insertHtml(this.activeConfig.mentionSelect(this.searchList.activeItem), this.startPos, pos);
+            // document.execCommand('insertHTML', false, '&nbsp;');
+            const text = this.activeConfig.mentionSelect(this.searchList.activeItem);
+            insertValue(nativeElement, this.startPos, pos, text, this.iframe);
+
             this.selectedMention.emit(this.searchList.activeItem);
+
+            // fire input event so angular bindings are updated
+            if ("createEvent" in document) {
+              let evt = document.createEvent("HTMLEvents");
+              if (this.iframe) {
+                // a 'change' event is required to trigger tinymce updates
+                evt.initEvent("change", true, false);
+              }
+              else {
+                evt.initEvent("input", true, false);
+              }
+              // this seems backwards, but fire the event from this elements nativeElement (not the
+              // one provided that may be in an iframe, as it won't be propogate)
+              this._element.nativeElement.dispatchEvent(evt);
+            }
 
             // Reset items
             this.resetSearchList();
@@ -457,40 +446,37 @@ export class MentionDirective implements OnChanges {
 
             this.startPos = -1;
             return false;
-          }
-          else if (charCode === KEY_ESCAPE) {
+          } else if (charCode === KEY_ESCAPE) {
             this.stopEvent(event);
             this.searchList.hidden = true;
             this.stopSearch = true;
             return false;
-          }
-          else if (charCode === KEY_DOWN) {
+          } else if (charCode === KEY_DOWN) {
             this.stopEvent(event);
             this.searchList.activateNextItem();
             return false;
-          }
-          else if (charCode === KEY_UP) {
+          } else if (charCode === KEY_UP) {
             this.stopEvent(event);
             this.searchList.activatePreviousItem();
             return false;
           }
         }
 
-        if (charCode === KEY_LEFT || charCode === KEY_RIGHT) {
+        if (charPressed.length !== 1 && event.keyCode !== KEY_BACKSPACE) {
           this.stopEvent(event);
           return false;
         } else if (!this.stopSearch) {
 
           let mention = val.substring(this.startPos + 1, pos);
 
-          if (!this.isPcSafari && (charCode !== KEY_BACKSPACE && imeInputStatus === IME_INPUT_STATUS.NONE) && !this.isAndroid) {
+          if (event.keyCode !== KEY_BACKSPACE && !event.inputEvent) {
             mention += charPressed;
 
           }
 
           if (mention.length > 0) {
             this.searchString = mention;
-            this.searchTerm.emit(this.searchString);
+            this.searchTerm.emit(this.activeConfig.triggerChar + this.searchString);
             this.updateSearchList();
           } else {
             this.searchList.items = [];
@@ -583,8 +569,7 @@ export class MentionDirective implements OnChanges {
         const fakeKeydown = {'keyCode': KEY_ENTER, 'wasClick': true};
         this.keyHandler(fakeKeydown, nativeElement);
       });
-    }
-    else {
+    } else {
       this.searchList.labelKey = this.activeConfig.labelKey;
       this.searchList.activeIndex = 0;
       this.searchList.position(nativeElement, this.iframe, this.activeConfig.dropUp);
