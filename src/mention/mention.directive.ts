@@ -262,7 +262,8 @@ export class MentionDirective implements OnChanges {
     if (event.inputType === 'insertText' && event.isComposing === false || event.inputType === 'deleteContentBackward') {
       let keyCode = 0;
       if (event.inputType === 'deleteContentBackward') {
-        // Any key code is okay for here, it only used to trigger the mention search when users click backspace on Android
+        // Any key code is okay for here
+        // It is only used to trigger the mention search when users click backspace on Android
         keyCode = '#'.charCodeAt(0);
       } else {
         keyCode = event.data.charCodeAt(0);

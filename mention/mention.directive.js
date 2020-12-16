@@ -211,7 +211,8 @@ var MentionDirective = /** @class */ (function () {
         if (event.inputType === 'insertText' && event.isComposing === false || event.inputType === 'deleteContentBackward') {
             var keyCode = 0;
             if (event.inputType === 'deleteContentBackward') {
-                // Any key code is okay for here, it only used to trigger the mention search when users click backspace on Android
+                // Any key code is okay for here
+                // It is only used to trigger the mention search when users click backspace on Android
                 keyCode = '#'.charCodeAt(0);
             }
             else {
