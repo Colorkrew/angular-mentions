@@ -58,7 +58,6 @@ The following optional configuration items can be used.
 | dropUp        | false    | Show the menu above the cursor instead of below. |
 | maxItems      | ∞        | Limit the number of items shown in the text. The default is no limit. |
 | mentionSelect |          | A function to format the selected item before inserting the text. |
-| mentionFilter |          | A function that returns the items to display. |
 | allowSpace    | false    | Allow spaces while mentioning. |
 | returnTrigger | false    | Include the trigger char in the searchTerm event. |
 
@@ -74,10 +73,9 @@ The following output events can be used.
 
 | Output        | Description |
 | ---           | ---         |
-| `@Output() searchTerm EventEmitter<string>` | Emitted whenever the search term changes. Can be used to trigger async search.
-| `@Output() itemSelected EventEmitter<any>` | Emitted when an item is selected.
-| `@Output() opened EventEmitter<void>`  | Emitted when the mentions panel is opened.
-| `@Output() closed EventEmitter<void>`  | Emitted when the mentions panel is closed.
+| `@Output() serchTerm EventEmitter<string>` | Event that is emitted whenever the search term changes. Can be used to trigger async search.
+| `@Output() opened EventEmitter<void>`  | Event that is emitted when the mentions panel is opened.
+| `@Output() closed EventEmitter<void>`  | Event that is emitted when the mentions panel is closed.
 
 ### Alternative Usage
 
@@ -109,10 +107,10 @@ let mentionConfig = {
         {
             items: [ "Red", "Yellow", "Green", ... ],
             triggerChar: '#'
-        }
-    ]
+        },
+    }]
 }
 ```
 This allows different lists and trigger characters to be configured.
 
-Note that because objects are mutable, changes to the items within the config will not be picked up unless a new mentionConfig object is created.
+Note that becuase objects are mutable, changes to the items within the config will not be picked up unless a new mentionConfig object is created.
